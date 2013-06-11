@@ -36,11 +36,13 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ExternalXml.cs" />
     <Compile Include="FileContainer.cs" />
     <Compile Include="GameFile.cs" />
     <Compile Include="GameFolder.cs" />
     <Compile Include="Format.cs" />
+    <Compile Include="IO\DataStream.cs" />
+    <Compile Include="IO\DataReader.cs" />
+    <Compile Include="XmlExportable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -49,8 +51,15 @@
         <Policies>
           <TextStylePolicy FileWidth="120" TabsToSpaces="False" EolMarker="Unix" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/x-csharp" />
           <CSharpFormattingPolicy IndentSwitchBody="True" BeforeMethodDeclarationParentheses="False" BeforeMethodCallParentheses="False" BeforeConstructorDeclarationParentheses="False" BeforeDelegateDeclarationParentheses="False" NewParentheses="False" SpacesBeforeBrackets="False" inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
+          <StandardHeader Text="-----------------------------------------------------------------------&#xD;&#xA;&lt;copyright file=&quot;{$FileName}&quot; company=&quot;none&quot;&gt;&#xD;&#xA;Copyright (C) {$Year}&#xD;&#xA;&#xA;  This program is free software: you can redistribute it and/or modify&#xD;&#xA;  it under the terms of the GNU General Public License as published by &#xD;&#xA;  the Free Software Foundation, either version 3 of the License, or&#xD;&#xA;  (at your option) any later version.&#xD;&#xA;&#xD;&#xA;  This program is distributed in the hope that it will be useful, &#xD;&#xA;  but WITHOUT ANY WARRANTY; without even the implied warranty of&#xD;&#xA;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the&#xD;&#xA;  GNU General Public License for more details. &#xD;&#xA;&#xD;&#xA;  You should have received a copy of the GNU General Public License&#xD;&#xA;  along with this program.  If not, see &quot;http://www.gnu.org/licenses/&quot;. &#xD;&#xA;&lt;/copyright&gt;&#xD;&#xA;&lt;author&gt;{$AuthorName}&lt;/author&gt;&#xD;&#xA;&lt;email&gt;{$AuthorEmail}&lt;/email&gt;&#xD;&#xA;&lt;date&gt;{$Date}&lt;/date&gt;&#xD;&#xA;-----------------------------------------------------------------------" IncludeInNewFiles="True" />
         </Policies>
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="IO\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="scheme.txt" />
+  </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
-﻿//-----------------------------------------------------------------------
-// <copyright file="IFormat.cs" company="none">
+//-----------------------------------------------------------------------
+// <copyright file="DataReader.cs" company="none">
 // Copyright (C) 2013
 //
 //   This program is free software: you can redistribute it and/or modify
@@ -19,43 +19,21 @@
 // <email>benito356@gmail.com</email>
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
-namespace Modime
+using System;
+
+namespace Modime.IO
 {
-    using System;
-	using Modime.IO;
-    
-    /// <summary>
-    /// Description of IFormat.
-    /// </summary>
-    public abstract class Format
-    {
-		protected Format(GameFile file)
+	public class DataReader
+	{
+		public DataReader(DataStream stream)
 		{
-			this.File = file;
+			this.Stream = stream;
 		}
 
-        public abstract string FormatName {
-            get;
-        }
-        
-		protected GameFile File {
+		public DataStream Stream {
 			get;
 			private set;
 		}
-
-		public void Read()
-		{
-			this.Read(this.File.Stream);
-		}
-
-        protected abstract void Read(DataStream strIn);
-        
-        public abstract void Write(DataStream strOut);
-        
-        public abstract void Import(DataStream strIn);
-        
-        public abstract void Export(DataStream strOut);
-        
-        public abstract bool Disposable();
-    }
+	}
 }
+

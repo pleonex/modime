@@ -1,0 +1,146 @@
+SCHEME TO IMPORT FILES
+
+We want to change the final file "AnimatedImage", the full route is describe below.
+Encoded -> PackInfo  
+               |       
+               V        { Encoded -> Palette   }
+Encoded -> Packed    -> { Encoded -> Image     } -> AnimatedImage
+                        { Encoded -> Sprite    }
+                        { Encoded -> Animation }
+
+:Translation:
+File X:
+            "PATH" /Encoded[1]/Packed/Encoded[3]/Animation/AnimatedImage
+            "IMPORT" 
+            {
+                ~/Translations/Ninokuni/hola.apng
+                ~/Translations/Ninokuni/info.xml
+            }
+
+Does "IMPORT" file exist?
+    + No  -> ERROR
+    * Yes -> Does "PATH" file exist?
+             + Yes -> DO
+             + No  -> Does "PATH" file exist in ":Game specifications:"?
+                      + No  -> ERROR
+                      + Yes -> Is "TYPE" implemented?
+                               + No  -> ERROR
+                               + Yes -> 
+                                        For each "DEPENDS ON"
+                                            + Goto '*'.
+                                        DO
+
+
+Where "ERROR" are the following steps:
+ Continue with the next file
+ Report warning.
+
+Where "INITIALIZE CLASS" are the following steps:
+ Have already the class been initialized?
+  + Yes -> Return.
+ Does the type need to read the original file first?
+  + Yes -> Constructor argument "original file" + file.
+  + No  -> Constructor argument only file.
+ The constructor will create and fill all the fields of the type
+ in case it's a pack type, it will create new subfiles and associate to the
+ file. The type is a part of the file.
+
+Where "DO" are the following steps:
+ Create links to depended files.
+ INITIALIZE CLASS
+ Is "IMPORT" empty?
+  + Yes -> Return.
+ Call to Import -> Pass array "IMPORT" as argument.
+ Add to "Update queue".
+
+Where "Update queue" is implemented by:
+ For each dependecy
+    For each dependecy (recursive)
+    Stop when no dependency -> add to the bottom
+    Check where the dependecies where added and added at the top
+ 
+:Update queue:
+/Encoded[1]/Packed/Encoded[3]/Animation/AnimatedImage
+/Encoded[1]/Packed/Encoded[0]/Palette
+/Encoded[1]/Packed/Encoded[0]
+/Encoded[1]/Packed/Encoded[1]/Image
+/Encoded[1]/Packed/Encoded[1]
+/Encoded[1]/Packed/Encoded[2]/Sprite
+/Encoded[1]/Packed/Encoded[2]
+/Encoded[1]/Packed/Encoded[3]/Animation
+/Encoded[1]/Packed/Encoded[3]
+/Encoded[1]/Packed
+/Encoded[1]
+/Encoded[0]/PackInfo
+/Encoded[0]
+/
+
+:Game specifications: 
+File X:
+            "PATH" /Encoded[1]/Packed/Encoded[3]/Animation/AnimatedImage
+            "TYPE" APNG
+            "DEPENDS ON" /Encoded[1]/Packed/Encoded[0]/Palette
+            "DEPENDS ON" /Encoded[1]/Packed/Encoded[1]/Image
+            "DEPENDS ON" /Encoded[1]/Packed/Encoded[2]/Sprite
+            "DEPENDS ON" /Encoded[1]/Packed/Encoded[3]/Animation
+
+File A:
+            "PATH" /Encoded[1]/Packed/Encoded[3]/Animation
+            "TYPE" NANR
+            "DEPENDS ON" /Encoded[1]/Packed/Encoded[3]
+
+File B:
+            "PATH" /Encoded[1]/Packed/Encoded[3]
+            "TYPE" LZ10
+            "DEPENDS ON" /Encoded[1]/Packed
+
+File C:
+            "PATH" /Encoded[1]/Packed
+            "TYPE" CPKG
+            "DEPENDS ON" /Encoded[1]
+            "DEPENDS ON" /Encoded[0]/PackInfo
+
+File D:
+            "PATH" /Encoded[1]
+            "TYPE" LZ10
+            "DEPENDS ON" /
+
+File E:
+            "PATH" /Encoded[0]/PackInfo
+            "TYPE" CPKG_INFO
+            "DEPENDS ON" /Encoded[0]
+
+File F:
+            "PATH" /Encoded[0]
+            "TYPE" LZ10
+            "DEPENDS ON" /
+
+File G:
+            "PATH" /Encoded[1]/Packed/Encoded[2]/Sprite
+            "TYPE" NCER
+            "DEPENDS ON" /Encoded[1]/Packed/Encoded[2]
+
+File H:
+            "PATH" /Encoded[1]/Packed/Encoded[2]
+            "TYPE" LZ10
+            "DEPENDS ON" /Encoded[1]/Packed
+
+File I:
+            "PATH" /Encoded[1]/Packed/Encoded[1]/Image
+            "TYPE" NCGR
+            "DEPENDS ON" /Encoded[1]/Packed/Encoded[1]
+
+File J:
+            "PATH" /Encoded[1]/Packed/Encoded[1]
+            "TYPE" LZ10
+            "DEPENDS ON" /Encoded[1]/Packed
+
+File K:
+            "PATH" /Encoded[1]/Packed/Encoded[0]/Palette
+            "TYPE" NCLR
+            "DEPENDS ON" /Encoded[1]/Packed/Encoded[0]
+
+File L:
+            "PATH" /Encoded[1]/Packed/Encoded[0]
+            "TYPE" LZ10
+            "DEPENDS ON" /Encoded[1]/Packed

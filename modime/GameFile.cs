@@ -24,52 +24,52 @@ namespace Modime
     using System;
 	using System.IO;
 	using System.Reflection;
+	using Modime.IO;
     
     /// <summary>
     /// Description of GameFile.
     /// </summary>
     public class GameFile : FileContainer
     {
-        public GameFile(string name, Stream stream, long offset, long size)
-            : base(name)
+        public GameFile(string name, Stream stream, long offset, long length)
+			: this(name, new DataStream(stream, offset, length))
         {
-            this.Stream = stream;
-            this.Offset = offset;
-            this.Size = size;
         }
-        
-        public GameFile(string name, Stream stream, long offset, long size, Format format, FileContainer parent)
-            : base(name)
-        {
-            this.Stream = stream;
-            this.Offset = offset;
-            this.Size = size;
+
+		public GameFile(string Name, DataStream stream)
+			: base(Name)
+		{
+			this.Stream = stream;
+		}
+
+		public GameFile(string name, Stream stream, long offset, long length, Format format, FileContainer parent)
+			: this(name, new DataStream(stream, offset, length))
+		{
+		}
+
+		public GameFile(string name, DataStream stream, Format format, FileContainer parent)
+			: base(name)
+		{
+			this.Stream = stream;
 			this.Format = format;
 
 			parent.AddFile(this);
-        }
-                                       
-        public long Offset
+		}
+                                               
+        public long Length
         {
-            get;
-            private set;
+			get { return this.Stream.Length; }
         }
-        
-        public long Size
-        {
-            get;
-            private set;
-        }
-        
+
+		public DataStream Stream
+		{
+			get;
+			private set;
+		}
+
         public Format Format {
 			get;
 			private set;
-        }
-        
-        public Stream Stream
-        {
-            get;
-            private set;
         }
 
 		public void SetFormat(string formatType, params Object[] parameters)

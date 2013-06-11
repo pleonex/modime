@@ -1,0 +1,8 @@
+# Ignore IDE conf files
+modime.userprefs
+modime.suo
+modime/modime.csproj.user
+
+# Ignore build files
+modime/bin/
+modime/obj/

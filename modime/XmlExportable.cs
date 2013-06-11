@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="ExternalXml.cs" company="none">
+// <copyright file="XmlExportable.cs" company="none">
 // Copyright (C) 2013
 //
 //   This program is free software: you can redistribute it and/or modify
@@ -17,27 +17,27 @@
 // </copyright>
 // <author>pleoNeX</author>
 // <email>benito356@gmail.com</email>
-// <date>18/04/2013</date>
+// <date>11/06/2013</date>
 //-----------------------------------------------------------------------
 namespace Modime
 {
     using System;
-    using System.IO;
     using System.Xml.Linq;
+	using Modime.IO;
     
     /// <summary>
-    /// Description of ExternalXmlFormat.
+    /// Description of XmlExportable.
     /// </summary>
-    public abstract class ExternalXml : Format
+    public abstract class XmlExportable : Format
     {
-		protected ExternalXml(GameFile file)
+		protected XmlExportable(GameFile file)
 			: base(file)
 		{
 		}
                
-        public override void Import(Stream strIn, long size)
+        public override void Import(DataStream strIn)
         {
-            XDocument doc = XDocument.Load(strIn);
+            XDocument doc = XDocument.Load(strIn.BaseStream);
             
             if (doc.Root.Name.LocalName != this.FormatName)
                 throw new FormatException();
@@ -45,20 +45,20 @@ namespace Modime
             this.Import(doc.Root);
         }
         
-		public override void Export(Stream strOut)
+		public override void Export(DataStream strOut)
 		{
 			XDocument doc = new XDocument();
 			doc.Declaration = new XDeclaration("1.0", "utf-8", "yes");
 
 			XElement root = new XElement(this.FormatName);
-			root.Add(this.Export());
+			this.Export(root);
 			doc.Add(root);
 
-			doc.Save(strOut, SaveOptions.None);
+			doc.Save(strOut.BaseStream, SaveOptions.None);
 		}
 
         protected abstract void Import(XElement root);
         
-        protected abstract XElement[] Export();
+        protected abstract void Export(XElement root);
     }
 }
