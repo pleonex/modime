@@ -20,7 +20,9 @@
 // <date>12/06/2013</date>
 //-----------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
+using Modime.IO;
 
 namespace Modime
 {
@@ -28,11 +30,92 @@ namespace Modime
 	{
 		private XDocument game;
 		private XDocument edit;
+		private FileContainer  root;
 
-		public Worker(string gameXml, string editXml)
+		private List<string> updateQueue;
+
+		public Worker(string gameXml, string editXml, FileContainer root)
 		{
 			this.game = XDocument.Load(gameXml);
 			this.edit = XDocument.Load(editXml);
+			this.root = root;
+			this.updateQueue = new List<string>();
+		}
+
+		public void Import()
+		{
+			// TODO: Support import from more than one file (ie: png + xml for nftr)
+			XElement files = edit.Root.Element("Files");
+
+			foreach (XElement fileEdit in files.Elements("Files")) {
+				string path   = fileEdit.Element("Path").Value;
+				string import = fileEdit.Element("Import").Value;
+
+				GameFile file = this.RescueFile(path);
+				file.Format.Read();
+				file.Format.Import(import);
+				this.UpdateQueue(file);
+			}
+		}
+
+		public void Write(string outputPath)
+		{
+			Queue<string> queue = new Queue<string>(this.updateQueue);
+
+			throw new NotImplementedException();
+
+			this.updateQueue.Clear();
+		}
+
+		public GameFile RescueFile(string gameFilePath)
+		{
+			XElement fileInfo = this.GetFileInfo(gameFilePath);
+
+			if (fileInfo == null) {
+				// Error
+				return null;
+			}
+
+			// Resolve dependencies
+			List<Format> depends = new List<Format>();
+			foreach (XElement xmlDepend in fileInfo.Elements("DependsOn")) {
+				GameFile dependency = this.RescueFile(xmlDepend.Value);
+				depends.Add(dependency.Format);
+
+				dependency.Format.Read();
+			}
+
+			// Get type of dependency
+			Type t = Type.GetType(fileInfo.Element("Type").Value, true, false);
+
+			// Get file
+			GameFile file = root.SearchFile(gameFilePath) as GameFile;
+			if (file == null)
+				throw new Exception("File not found.");
+
+			file.AddDependencies(depends.ToArray());
+
+			// Set type and read
+			if (file.Format == null)
+				file.SetFormat(t, null);
+
+			return file;
+		}
+
+		private XElement GetFileInfo(string path)
+		{
+			XElement files = game.Root.Element("Files");
+			foreach (XElement fileInfo in files.Elements("FileInfo")) {
+				if (fileInfo.Element("Path").Value == path)
+					return fileInfo;
+			}
+
+			return null;
+		}
+
+		private void UpdateQueue(GameFile file)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

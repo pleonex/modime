@@ -22,6 +22,8 @@
 namespace Modime.IO
 {
     using System;
+	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
 	using System.IO;
 	using System.Reflection;
     
@@ -30,6 +32,8 @@ namespace Modime.IO
     /// </summary>
     public class GameFile : FileContainer
     {
+		private List<Format> dependencies = new List<Format>();
+
         public GameFile(string name, Stream stream, long offset, long length)
 			: this(name, new DataStream(stream, offset, length))
         {
@@ -71,6 +75,10 @@ namespace Modime.IO
 			private set;
         }
 
+		public DependecyCollection Dependencies {
+			get { return new DependecyCollection(this.dependencies); }
+		}
+
 		public void SetFormat(string formatType, params Object[] parameters)
 		{
 			Type t = Type.GetType(formatType, true, false);
@@ -90,6 +98,43 @@ namespace Modime.IO
 
 			// Create instance
 			this.Format = (Format)Activator.CreateInstance(formatType, newParams);
+		}
+
+		public void AddDependency(Format f)
+		{
+			this.dependencies.Add(f);
+		}
+
+		public void AddDependencies(Format[] fs)
+		{
+			foreach (Format f in fs)
+				this.AddDependency(f);
+		}
+
+		public class DependecyCollection : ReadOnlyCollection<Format>
+		{
+			public DependecyCollection(IList<Format> dependencies)
+				: base(dependencies)
+			{
+			}
+
+			public Format this[Type t] {
+				get {
+					foreach (Format f in this.Items) {
+						if (t.IsInstanceOfType(f))
+							return f;
+					}
+
+					return null;
+				}
+			}
+
+			public Format this[string t] {
+				get {
+					Type type = Type.GetType(t, true, false);
+					return this[type];
+				}
+			}
 		}
     }
 }

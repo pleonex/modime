@@ -28,6 +28,8 @@ namespace Modime.IO
     /// </summary>
     public abstract class Format
     {
+		private bool isRead = false;
+
 		protected Format(GameFile file)
 		{
 			this.File = file;
@@ -44,7 +46,18 @@ namespace Modime.IO
 
 		public void Read()
 		{
+			if (this.isRead)
+				return;
+
 			this.Read(this.File.Stream);
+			this.isRead = true;
+		}
+
+		public void Import(string filePath)
+		{
+			DataStream stream = new DataStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+			this.Import(stream);
+			stream.Dispose();
 		}
 
         protected abstract void Read(DataStream strIn);

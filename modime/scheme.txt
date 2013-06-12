@@ -19,16 +19,14 @@ File X:
 
 Does "IMPORT" file exist?
     + No  -> ERROR
-    * Yes -> Does "PATH" file exist?
-             + Yes -> DO
-             + No  -> Does "PATH" file exist in ":Game specifications:"?
+    * Yes -> Does "PATH" file exist in ":Game specifications:"?
+             + No  -> ERROR
+             + Yes -> Is "TYPE" implemented?
                       + No  -> ERROR
-                      + Yes -> Is "TYPE" implemented?
-                               + No  -> ERROR
-                               + Yes -> 
-                                        For each "DEPENDS ON"
-                                            + Goto '*'.
-                                        DO
+                      + Yes -> 
+                               For each "DEPENDS ON"
+                                   + Goto '*'.
+                               DO
 
 
 Where "ERROR" are the following steps:
@@ -36,20 +34,15 @@ Where "ERROR" are the following steps:
  Report warning.
 
 Where "INITIALIZE CLASS" are the following steps:
- Have already the class been initialized?
-  + Yes -> Return.
- Does the type need to read the original file first?
-  + Yes -> Constructor argument "original file" + file.
-  + No  -> Constructor argument only file.
- The constructor will create and fill all the fields of the type
+ Set type
+ Call to read.
+ It will create and fill all the fields of the type
  in case it's a pack type, it will create new subfiles and associate to the
  file. The type is a part of the file.
 
 Where "DO" are the following steps:
  Create links to depended files.
  INITIALIZE CLASS
- Is "IMPORT" empty?
-  + Yes -> Return.
  Call to Import -> Pass array "IMPORT" as argument.
  Add to "Update queue".
 
