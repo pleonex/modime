@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="XmlExportable.cs" company="none">
+// <copyright file="IFormat.cs" company="none">
 // Copyright (C) 2013
 //
 //   This program is free software: you can redistribute it and/or modify
@@ -19,46 +19,42 @@
 // <email>benito356@gmail.com</email>
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
-namespace Modime
+namespace Modime.IO
 {
     using System;
-    using System.Xml.Linq;
-	using Modime.IO;
     
     /// <summary>
-    /// Description of XmlExportable.
+    /// Description of IFormat.
     /// </summary>
-    public abstract class XmlExportable : Format
+    public abstract class Format
     {
-		protected XmlExportable(GameFile file)
-			: base(file)
+		protected Format(GameFile file)
 		{
+			this.File = file;
 		}
-               
-        public override void Import(DataStream strIn)
-        {
-            XDocument doc = XDocument.Load(strIn.BaseStream);
-            
-            if (doc.Root.Name.LocalName != this.FormatName)
-                throw new FormatException();
-            
-            this.Import(doc.Root);
+
+        public abstract string FormatName {
+            get;
         }
         
-		public override void Export(DataStream strOut)
-		{
-			XDocument doc = new XDocument();
-			doc.Declaration = new XDeclaration("1.0", "utf-8", "yes");
-
-			XElement root = new XElement(this.FormatName);
-			this.Export(root);
-			doc.Add(root);
-
-			doc.Save(strOut.BaseStream, SaveOptions.None);
+		protected GameFile File {
+			get;
+			private set;
 		}
 
-        protected abstract void Import(XElement root);
+		public void Read()
+		{
+			this.Read(this.File.Stream);
+		}
+
+        protected abstract void Read(DataStream strIn);
         
-        protected abstract void Export(XElement root);
+        public abstract void Write(DataStream strOut);
+        
+        public abstract void Import(DataStream strIn);
+        
+        public abstract void Export(DataStream strOut);
+        
+        public abstract bool Disposable();
     }
 }

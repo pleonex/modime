@@ -19,12 +19,11 @@
 // <email>benito356@gmail.com</email>
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
-namespace Modime
+namespace Modime.IO
 {
     using System;
 	using System.IO;
 	using System.Reflection;
-	using Modime.IO;
     
     /// <summary>
     /// Description of GameFile.

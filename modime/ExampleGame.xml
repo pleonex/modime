@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<GameInfo>
+	<Files>
+		<FileInfo>
+			<Path>/</Path>
+			<Type>Nitro.ROM</Type>
+			<DependsOn></DependsOn>
+		</FileInfo>
+		<FileInfo>
+			<Path>/data/UI/Common/title_logo.n2d/title_logo_6.nscr/title_logo_6.png</Path>
+			<Type>Images.PNG</Type>
+			<DependsOn>/data/UI/Common/title_logo.n2d/title_logo_0.nclr</DependsOn>
+			<DependsOn>/data/UI/Common/title_logo.n2d/title_logo_1.ncgr/title_logo_1.ncgr</DependsOn>
+			<DependsOn>/data/UI/Common/title_logo.n2d/title_logo_6.nscr</DependsOn>
+		</FileInfo>
+		<FileInfo>
+			<Path>/data/UI/Common/title_logo.n2d/title_logo_6.nscr</Path>
+			<Type>NitroImages.NSCR</Type>
+			<DependsOn>/data/UI/Common/title_logo.n2d</DependsOn>
+		</FileInfo>
+		<FileInfo>
+			<Path>/data/UI/Common/title_logo.n2d/title_logo_1.ncgr/title_logo_1.ncgr</Path>
+			<Type>NitroImages.NCGR</Type>
+			<DependsOn>/data/UI/Common/title_logo.n2d/title_logo_1.ncgr</DependsOn>
+		</FileInfo>
+		<FileInfo>
+			<Path>/data/UI/Common/title_logo.n2d/title_logo_1.ncgr</Path>
+			<Type>NitroEncoding.LZX</Type>
+			<DependsOn>/data/UI/Common/title_logo.n2d</DependsOn>
+		</FileInfo>
+		<FileInfo>
+			<Path>/data/UI/Common/title_logo.n2d/title_logo_0.nclr</Path>
+			<Type>NitroImages.NCLR</Type>
+			<DependsOn>/data/UI/Common/title_logo.n2d</DependsOn>
+		</FileInfo>
+		<FileInfo>
+			<Path>/data/UI/Common/title_logo.n2d</Path>
+			<Type>Ninokuni.N2D</Type>
+			<DependsOn>/</DependsOn>
+		</FileInfo>
+	</Files>
+</GameInfo>

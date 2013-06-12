@@ -19,7 +19,7 @@
 // <email>benito356@gmail.com</email>
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
-namespace Modime
+namespace Modime.IO
 {
     using System;
     using System.Collections.Generic;

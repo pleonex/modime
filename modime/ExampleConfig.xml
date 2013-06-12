@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+	<RelativePaths>
+		<Path>
+			<Variable>DropboxPath</Variable>
+			<Location>C:\Users\Benito\Documents\My Dropbox</Location>
+		</Path>
+		<Path>
+			<Variable>NinokuniPath</Variable>
+			<Location>{$DropboxPath}\Ninokuni español</Location>
+		</Path>
+	</RelativePaths>
+</Configuration>

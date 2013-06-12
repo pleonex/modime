@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="IFormat.cs" company="none">
+// <copyright file="XmlExportable.cs" company="none">
 // Copyright (C) 2013
 //
 //   This program is free software: you can redistribute it and/or modify
@@ -19,43 +19,45 @@
 // <email>benito356@gmail.com</email>
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
-namespace Modime
+namespace Modime.IO
 {
     using System;
-	using Modime.IO;
+    using System.Xml.Linq;
     
     /// <summary>
-    /// Description of IFormat.
+    /// Description of XmlExportable.
     /// </summary>
-    public abstract class Format
+    public abstract class XmlExportable : Format
     {
-		protected Format(GameFile file)
+		protected XmlExportable(GameFile file)
+			: base(file)
 		{
-			this.File = file;
 		}
-
-        public abstract string FormatName {
-            get;
+               
+        public override void Import(DataStream strIn)
+        {
+            XDocument doc = XDocument.Load(strIn.BaseStream);
+            
+            if (doc.Root.Name.LocalName != this.FormatName)
+                throw new FormatException();
+            
+            this.Import(doc.Root);
         }
         
-		protected GameFile File {
-			get;
-			private set;
-		}
-
-		public void Read()
+		public override void Export(DataStream strOut)
 		{
-			this.Read(this.File.Stream);
+			XDocument doc = new XDocument();
+			doc.Declaration = new XDeclaration("1.0", "utf-8", "yes");
+
+			XElement root = new XElement(this.FormatName);
+			this.Export(root);
+			doc.Add(root);
+
+			doc.Save(strOut.BaseStream, SaveOptions.None);
 		}
 
-        protected abstract void Read(DataStream strIn);
+        protected abstract void Import(XElement root);
         
-        public abstract void Write(DataStream strOut);
-        
-        public abstract void Import(DataStream strIn);
-        
-        public abstract void Export(DataStream strOut);
-        
-        public abstract bool Disposable();
+        protected abstract void Export(XElement root);
     }
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<GameChanges>
+	<GameCode>B2KJ</GameCode>
+	<Files>
+		<File>
+			<Path>/data/UI/Common/title_logo.n2d/title_logo_6.nscr/title_logo_6.png</Path>
+			<Import>{$NinokuniPath}\Imágenes\Originales definitivas\UI\Common\title_logo_6.nscrm.png</Import>
+		</File>
+	</Files>
+</GameChanges>
