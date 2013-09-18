@@ -130,10 +130,10 @@ namespace Modime.IO
 			{
 			}
 		
-			public GameFile this[string path] {
+			public GameFile this[string name] {
 				get {
 					foreach (GameFile file in this) {
-						if (file.Path == path)
+						if (file.Name == name)
 							return file;
 					}
 

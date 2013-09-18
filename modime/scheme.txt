@@ -58,10 +58,6 @@ Where "Update queue" is implemented by:
  	When the output file is imported, it will create a new format for each of its depencies.
  	When writing do nothing since the new data of the denpency was created at importing.
 
- 	Validation method. Abstract class in Format class as abstract getter property. It will validate that the datastream
- 	matches the format and it will guess dependencies. It must be called by GameFile in the case no format is passed in the
- 	constructor. Property in format telling it was guessed.
-
 :Update queue:
 /Encoded[1]/Packed/Encoded[3]/Animation/AnimatedImage
 /Encoded[1]/Packed/Encoded[0]/Palette

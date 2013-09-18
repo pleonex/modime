@@ -44,6 +44,11 @@ namespace Modime.IO
 			private set;
 		}
 
+		public bool IsGuessed {
+			set;
+			get;
+		}
+
 		public void Read()
 		{
 			if (this.isRead)

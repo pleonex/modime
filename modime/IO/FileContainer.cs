@@ -32,7 +32,8 @@ namespace Modime.IO
     {      
 		private FileContainer previousContainer;
         private List<FileContainer> files;
-        private List<FileContainer> folders; 
+        private List<FileContainer> folders;
+		private Dictionary<string, string> tags = new Dictionary<string, string>();
         
         /// <summary>
         /// Initializes a new instance of the <see cref="GameFolder" /> class.
@@ -98,6 +99,14 @@ namespace Modime.IO
 		public FileContainer PreviousContainer 
 		{
 			get { return this.previousContainer; }
+		}
+
+		/// <summary>
+		/// Gets the tags of this container.
+		/// </summary>
+		/// <value>The tags.</value>
+		public IDictionary<string, string> Tags {
+			get { return this.tags; }
 		}
 
         #endregion

@@ -114,15 +114,17 @@ namespace Modime
 			// 1.2.- Gets dependencies to be able to parse data.
 			// It will try to guess the file type using FormatValidation classes.
 			// If one of the matches, it will provide the dependencies.
-			// UNDONE: Guess file type
+			// UNDONE: Guess file type. For each FormatValidation class loaded, pass the file and get result
 			Type t = null;
 
 			// Set dependencies
 			file.AddDependencies(depends.ToArray());
 
 			// Set type
-			if (file.Format == null)
+			if (file.Format == null && t != null) {
 				file.SetFormat(t, null);
+				file.Format.IsGuessed = true;
+			}
 
 			return file;
 		}
