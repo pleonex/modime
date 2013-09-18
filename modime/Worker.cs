@@ -74,32 +74,84 @@ namespace Modime
 		public GameFile RescueFile(string gameFilePath)
 		{
 			XElement fileInfo = this.GetFileInfo(gameFilePath);
+			if (fileInfo != null)
+				return this.RescueFileInfo(gameFilePath, fileInfo);
+			else
+				return this.RescueFileNoInfo(gameFilePath);
+		}
 
-			if (fileInfo == null) {
-				// Error
-				return null;
+		private GameFile RescueFileNoInfo(string gameFilePath)
+		{
+			// 1.- Gets dependencies
+			// Since no info of dependencies is given, it will search them in two steps.
+			List<GameFile> depends = new List<GameFile>();
+
+			// 1.1.- Gets dependencies to get file data.
+			// It will be the previous GameFile that contains that file.
+			// Reading that file it's expected to get file data.
+			string prevContainer = gameFilePath.GetPreviousPath();
+			if (!string.IsNullOrEmpty(prevContainer)) {
+				GameFile dependency = this.RescueFile(prevContainer);
+				if (dependency != null) {
+					dependency.Format.Read();
+					depends.Add(dependency);
+				}
 			}
 
+			// We should be able to get the file now
+			FileContainer searchFile = root.SearchFile(gameFilePath);
+			GameFile file =  searchFile as GameFile;
+			// If we're trying to get the dependency and found a folder, pass its the "dependency"
+			if (file == null && searchFile is GameFolder) {
+				if (depends.Count > 0)
+					return depends[0];
+				else
+					return null;	// Folder without dependencies
+			} else if (file == null) {
+				throw new Exception("File not found.");
+			}
+
+			// 1.2.- Gets dependencies to be able to parse data.
+			// It will try to guess the file type using FormatValidation classes.
+			// If one of the matches, it will provide the dependencies.
+			// UNDONE: Guess file type
+			Type t = null;
+
+			// Set dependencies
+			file.AddDependencies(depends.ToArray());
+
+			// Set type
+			if (file.Format == null)
+				file.SetFormat(t, null);
+
+			return file;
+		}
+
+		private GameFile RescueFileInfo(string gameFilePath, XElement fileInfo)
+		{
 			// Resolve dependencies
 			List<GameFile> depends = new List<GameFile>();
+
 			foreach (XElement xmlDepend in fileInfo.Elements("DependsOn")) {
 				GameFile dependency = this.RescueFile(xmlDepend.Value);
 				depends.Add(dependency);
-
 				dependency.Format.Read();
 			}
 
-			// Get type of dependency
-			Type t = Type.GetType(fileInfo.Element("Type").Value, true, false);
-
 			// Get file
-			GameFile file = root.SearchFile(gameFilePath) as GameFile;
-			if (file == null)
+			FileContainer searchFile = root.SearchFile(gameFilePath);
+			GameFile file =  searchFile as GameFile;
+			if (file == null) {
 				throw new Exception("File not found.");
+			}
 
+			// Add dependencies
 			file.AddDependencies(depends.ToArray());
 
-			// Set type and read
+			// Get type of dependency from info
+			Type t = Type.GetType(fileInfo.Element("Type").Value, true, false);
+
+			// Set type
 			if (file.Format == null)
 				file.SetFormat(t, null);
 

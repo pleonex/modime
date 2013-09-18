@@ -81,12 +81,18 @@ namespace Modime.IO
 
 		public void SetFormat(string formatType, params Object[] parameters)
 		{
+			if (!string.IsNullOrEmpty(formatType))
+				return;
+
 			Type t = Type.GetType(formatType, true, false);
 			this.SetFormat(t, parameters);
 		}
 
 		public void SetFormat(Type formatType, params Object[] parameters)
 		{
+			if (formatType == null)
+				return;
+
 			// Check type
 			if (!formatType.IsSubclassOf(typeof(Format)))
 				throw new ArgumentException("Invalid type. Must inherit from Format.");

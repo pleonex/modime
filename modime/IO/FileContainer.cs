@@ -30,6 +30,7 @@ namespace Modime.IO
     /// </summary>
     public abstract class FileContainer
     {      
+		private FileContainer previousContainer;
         private List<FileContainer> files;
         private List<FileContainer> folders; 
         
@@ -90,6 +91,15 @@ namespace Modime.IO
             get { return new ReadOnlyCollection<FileContainer>(this.folders); }
         }
         
+		/// <summary>
+		/// Gets the FileContainers that contains this instance.
+		/// </summary>
+		/// <value>The previous file container.</value>
+		public FileContainer PreviousContainer 
+		{
+			get { return this.previousContainer; }
+		}
+
         #endregion
         
         /// <summary>
@@ -135,6 +145,7 @@ namespace Modime.IO
 		private void AddContainer(FileContainer element, List<FileContainer> list)
 		{
 			element.Path = this.Path + PathSeparator + element.Name;
+			element.previousContainer = this;
 
 			for (int i = 0; i < list.Count; i++) {
 				if (list[i].Name == element.Name) {
