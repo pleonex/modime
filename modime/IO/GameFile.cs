@@ -32,7 +32,7 @@ namespace Modime.IO
     /// </summary>
     public class GameFile : FileContainer
     {
-		private List<Format> dependencies = new List<Format>();
+		private List<GameFile> dependencies = new List<GameFile>();
 
         public GameFile(string name, Stream stream, long offset, long length)
 			: this(name, new DataStream(stream, offset, length))
@@ -100,39 +100,38 @@ namespace Modime.IO
 			this.Format = (Format)Activator.CreateInstance(formatType, newParams);
 		}
 
-		public void AddDependency(Format f)
+		public void ChangeStream(DataStream newStream)
+		{
+			this.Stream.Dispose();
+			this.Stream = newStream;
+		}
+
+		public void AddDependency(GameFile f)
 		{
 			this.dependencies.Add(f);
 		}
 
-		public void AddDependencies(Format[] fs)
+		public void AddDependencies(GameFile[] fs)
 		{
-			foreach (Format f in fs)
+			foreach (GameFile f in fs)
 				this.AddDependency(f);
 		}
 
-		public class DependecyCollection : ReadOnlyCollection<Format>
+		public class DependecyCollection : ReadOnlyCollection<GameFile>
 		{
-			public DependecyCollection(IList<Format> dependencies)
+			public DependecyCollection(IList<GameFile> dependencies)
 				: base(dependencies)
 			{
 			}
-
-			public Format this[Type t] {
+		
+			public GameFile this[string path] {
 				get {
-					foreach (Format f in this.Items) {
-						if (t.IsInstanceOfType(f))
-							return f;
+					foreach (GameFile file in this) {
+						if (file.Path == path)
+							return file;
 					}
 
 					return null;
-				}
-			}
-
-			public Format this[string t] {
-				get {
-					Type type = Type.GetType(t, true, false);
-					return this[type];
 				}
 			}
 		}

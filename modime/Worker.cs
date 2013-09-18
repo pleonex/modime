@@ -47,7 +47,7 @@ namespace Modime
 			// TODO: Support import from more than one file (ie: png + xml for nftr)
 			XElement files = edit.Root.Element("Files");
 
-			foreach (XElement fileEdit in files.Elements("Files")) {
+			foreach (XElement fileEdit in files.Elements("File")) {
 				string path   = fileEdit.Element("Path").Value;
 				string import = fileEdit.Element("Import").Value;
 
@@ -60,9 +60,13 @@ namespace Modime
 
 		public void Write(string outputPath)
 		{
-			Queue<string> queue = new Queue<string>(this.updateQueue);
+			foreach (string filePath in this.updateQueue) {
+				GameFile file = this.root.SearchFile(filePath) as GameFile;
+				if (file == null)
+					throw new Exception("File not found.");
 
-			throw new NotImplementedException();
+				file.Format.Write();
+			}
 
 			this.updateQueue.Clear();
 		}
@@ -77,10 +81,10 @@ namespace Modime
 			}
 
 			// Resolve dependencies
-			List<Format> depends = new List<Format>();
+			List<GameFile> depends = new List<GameFile>();
 			foreach (XElement xmlDepend in fileInfo.Elements("DependsOn")) {
 				GameFile dependency = this.RescueFile(xmlDepend.Value);
-				depends.Add(dependency.Format);
+				depends.Add(dependency);
 
 				dependency.Format.Read();
 			}
@@ -115,7 +119,23 @@ namespace Modime
 
 		private void UpdateQueue(GameFile file)
 		{
-			throw new NotImplementedException();
+			foreach (GameFile dependency in file.Dependencies)
+				this.UpdateQueue(dependency);
+
+			// Checks if it's in the queue
+			if (this.updateQueue.Contains(file.Path))
+				return;
+
+			// Get the higher position in the queue of it's dependencies
+			int depTopPosition = this.updateQueue.Count;
+			foreach (GameFile dependency in file.Dependencies) {
+				int depPosition = this.updateQueue.IndexOf(dependency.Path);
+				if (depPosition > depTopPosition)
+					depTopPosition = depPosition;
+			}
+
+			// Insert the file just above the top dependency
+			this.updateQueue.Insert(depTopPosition, file.Path);
 		}
 	}
 }

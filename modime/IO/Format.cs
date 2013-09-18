@@ -53,6 +53,13 @@ namespace Modime.IO
 			this.isRead = true;
 		}
 
+		public void Write()
+		{
+			DataStream newStream = new DataStream(new System.IO.MemoryStream(), 0, -1);
+			this.File.ChangeStream(newStream);
+			this.Write(newStream);
+		}
+
 		public void Import(string filePath)
 		{
 			DataStream stream = new DataStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.Read);

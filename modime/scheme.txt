@@ -52,6 +52,17 @@ Where "Update queue" is implemented by:
     Stop when no dependency -> add to the bottom
     Check where the dependecies where added and added at the top
  
+:NOTES:
+ 	Palette, Image and Sprite must generate a new output GameFile. Just in case it's used, it will create the output
+ 	from its depencies. When that output file it's imported it will create a new format for each of its depencies.
+ 	When writing do nothing since the new data of the denpency was created at importing.
+
+ 	Validation method. Abstract class in Format class as abstract getter property. It will validate that the datastream
+ 	match the format and it will guess depencies. It must be called by GameFile in the case no format is passed in the
+ 	constructor. Property in format telling it was guessed.
+
+ 	Implement parent filecontainer property and last gamefile container.
+
 :Update queue:
 /Encoded[1]/Packed/Encoded[3]/Animation/AnimatedImage
 /Encoded[1]/Packed/Encoded[0]/Palette

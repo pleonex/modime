@@ -44,7 +44,7 @@ namespace Modime.IO
 				Instances[stream] += 1;
 
 			this.BaseStream = stream;
-			this.Length = (length != 1) ? length : stream.Length;
+			this.Length = (length != -1) ? length : stream.Length;
 			this.Offset = offset;
 		}
 
