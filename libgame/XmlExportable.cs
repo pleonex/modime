@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="GameFolder.cs" company="none">
+// <copyright file="XmlExportable.cs" company="none">
 // Copyright (C) 2013
 //
 //   This program is free software: you can redistribute it and/or modify
@@ -19,25 +19,45 @@
 // <email>benito356@gmail.com</email>
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
-namespace Modime.IO
+namespace Libgame
 {
     using System;
-    using System.Collections.Generic;
+    using System.Xml.Linq;
     
     /// <summary>
-    /// Description of GameFolder.
+    /// Description of XmlExportable.
     /// </summary>
-    public class GameFolder : FileContainer
+    public abstract class XmlExportable : Format
     {
-        public GameFolder(string name)
-            : base(name)
+		protected XmlExportable(GameFile file)
+			: base(file)
+		{
+		}
+               
+        public override void Import(DataStream strIn)
         {
+            XDocument doc = XDocument.Load(strIn.BaseStream);
+            
+            if (doc.Root.Name.LocalName != this.FormatName)
+                throw new FormatException();
+            
+            this.Import(doc.Root);
         }
         
-		public GameFolder(string name, FileContainer parent)
-			: base(name)
+		public override void Export(DataStream strOut)
 		{
-			parent.AddFolder(this);
+			XDocument doc = new XDocument();
+			doc.Declaration = new XDeclaration("1.0", "utf-8", "yes");
+
+			XElement root = new XElement(this.FormatName);
+			this.Export(root);
+			doc.Add(root);
+
+			doc.Save(strOut.BaseStream, SaveOptions.None);
 		}
+
+        protected abstract void Import(XElement root);
+        
+        protected abstract void Export(XElement root);
     }
 }

@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Modime.IO
+namespace Libgame
 {
 	public abstract class FormatValidation
 	{

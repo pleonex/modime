@@ -38,17 +38,8 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IO\DataStream.cs" />
-    <Compile Include="IO\DataReader.cs" />
     <Compile Include="Worker.cs" />
-    <Compile Include="IO\GameFile.cs" />
-    <Compile Include="IO\Format.cs" />
-    <Compile Include="IO\FileContainer.cs" />
-    <Compile Include="IO\GameFolder.cs" />
-    <Compile Include="IO\XmlExportable.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="IO\StringExtensions.cs" />
-    <Compile Include="IO\FormatValidation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -63,9 +54,6 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <Folder Include="IO\" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="scheme.txt" />
     <None Include="ExampleGame.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -76,5 +64,11 @@
     <None Include="ExampleConfig.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libgame\libgame.csproj">
+      <Project>{47373F3F-6A6A-4B2A-B06E-971D9FBDB545}</Project>
+      <Name>libgame</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

@@ -6,3 +6,5 @@ modime/modime.csproj.user
 # Ignore build files
 modime/bin/
 modime/obj/
+libgame/bin/
+libgame/obj/

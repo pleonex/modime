@@ -1,5 +1,5 @@
-// -----------------------------------------------------------------------
-// <copyright file="StringExtensions.cs" company="none">
+//-----------------------------------------------------------------------
+// <copyright file="DataReader.cs" company="none">
 // Copyright (C) 2013
 //
 //   This program is free software: you can redistribute it and/or modify
@@ -15,19 +15,24 @@
 //   You should have received a copy of the GNU General Public License
 //   along with this program.  If not, see "http://www.gnu.org/licenses/". 
 // </copyright>
-// <author>pleonex</author>
+// <author>pleoNeX</author>
 // <email>benito356@gmail.com</email>
-// <date>18/09/2013</date>
-// -----------------------------------------------------------------------
+// <date>11/06/2013</date>
+//-----------------------------------------------------------------------
 using System;
 
-namespace Modime.IO
+namespace Libgame
 {
-	public static class StringExtensions
+	public class DataReader
 	{
-		public static string GetPreviousPath(this string path)
+		public DataReader(DataStream stream)
 		{
-			return path.Substring(path.LastIndexOf(FileContainer.PathSeparator));
+			this.Stream = stream;
+		}
+
+		public DataStream Stream {
+			get;
+			private set;
 		}
 	}
 }

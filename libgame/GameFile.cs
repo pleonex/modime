@@ -19,7 +19,7 @@
 // <email>benito356@gmail.com</email>
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
-namespace Modime.IO
+namespace Libgame
 {
     using System;
 	using System.Collections.Generic;
