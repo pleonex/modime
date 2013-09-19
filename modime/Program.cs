@@ -20,6 +20,10 @@
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
 using System;
+using Mono.Addins;
+
+[assembly:AddinRoot("modime", "0.2")]
+[assembly:ImportAddinAssembly("libgame.dll")]
 
 namespace Modime
 {
@@ -27,6 +31,8 @@ namespace Modime
 	{
 		public static void Main (string[] args)
 		{
+			AddinManager.Initialize();
+			AddinManager.Registry.Update();
 			// Soon...
 		}
 	}

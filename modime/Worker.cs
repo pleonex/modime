@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using Libgame;
+using Mono.Addins;
 
 namespace Modime
 {
@@ -114,17 +115,23 @@ namespace Modime
 			// 1.2.- Gets dependencies to be able to parse data.
 			// It will try to guess the file type using FormatValidation classes.
 			// If one of the matches, it will provide the dependencies.
-			// UNDONE: Guess file type. For each FormatValidation class loaded, pass the file and get result
-			Type t = null;
+			foreach (TypeExtensionNode node in AddinManager.GetExtensionNodes(typeof(FormatValidation))) {
+				FormatValidation validation = (FormatValidation)node.CreateInstance();
+				validation.AutosetFormat = true;	// If it matches set format to the file.
+				validation.RunTests(file);
+
+				if (validation.Result) {
+					foreach (string dependencyPath in validation.Dependencies) {
+						GameFile dependency = this.RescueFile(dependencyPath);
+						depends.Add(dependency);
+						dependency.Format.Read();
+					}
+					break;
+				}
+			}
 
 			// Set dependencies
 			file.AddDependencies(depends.ToArray());
-
-			// Set type
-			if (file.Format == null && t != null) {
-				file.SetFormat(t, null);
-				file.Format.IsGuessed = true;
-			}
 
 			return file;
 		}
@@ -155,7 +162,7 @@ namespace Modime
 
 			// Set type
 			if (file.Format == null)
-				file.SetFormat(t, null);
+				file.SetFormat(t);
 
 			return file;
 		}
