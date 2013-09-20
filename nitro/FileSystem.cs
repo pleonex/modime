@@ -36,17 +36,6 @@ namespace Nitro
 		private GameFolder root;         // Parent folder of the ROM file system.
 		private GameFolder sysFolder;    // Folder with ARM, overlays and info files.
         
-        /// <summary>
-        /// Initializes a new instance of the FileSystem class.
-        /// </summary>
-        /// <param name="str">Stream to read from.</param>
-        /// <param name="header">Header of the ROM.</param>
-        /// <param name="romPath">Path of the current ROM (to create the file system).</param>
-		public FileSystem(DataStream str, RomHeader header)
-        {
-            this.header = header;            
-            this.Read(str);
-        }
         
         /// <summary>
         /// Gets the padding used in the ROM.
@@ -82,6 +71,14 @@ namespace Nitro
         
 		public override string FormatName {
 			get { return "Nitro.FileSystem"; }
+		}
+
+		public override void Initialize(GameFile file, params object[] parameters)
+		{
+			base.Initialize(file, parameters);
+
+			if (parameters.Length == 1)
+				this.header = (RomHeader)parameters[0];
 		}
 
         /// <summary>

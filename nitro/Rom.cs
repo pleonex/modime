@@ -106,6 +106,7 @@ namespace Nitro
         /// <param name="str">Stream to read from.</param>
 		public override void Read(DataStream str)
         {
+			str.Seek(0, SeekMode.Origin);
 			this.header = new RomHeader();
 			this.header.Read(str);
 
@@ -113,7 +114,10 @@ namespace Nitro
 			this.banner  = new Banner();
 			this.banner.Read(str);
 
-			this.fileSys = new FileSystem(str, this.header);
+			this.fileSys = new FileSystem();
+			this.fileSys.Initialize(this.File, this.header);
+			this.fileSys.Read(str);
+			this.File.AddFolder(this.fileSys.Root);
         }
 
 		public override void Export(DataStream strOut)

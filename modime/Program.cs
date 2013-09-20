@@ -20,6 +20,9 @@
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
 using System;
+using System.IO;
+using System.Xml.Linq;
+using Libgame;
 using Mono.Addins;
 
 [assembly:AddinRoot("modime", "0.2")]
@@ -27,13 +30,54 @@ using Mono.Addins;
 
 namespace Modime
 {
-	class MainClass
+	public static class MainClass
 	{
-		public static void Main (string[] args)
+		public static void Main(string[] args)
 		{
 			AddinManager.Initialize();
 			AddinManager.Registry.Update();
+
+			// Tests
+			TestNdsRom("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
+
 			// Soon...
+
+			Console.WriteLine("Done!");
+		}
+
+		private static void CreateEmptyXmls(XDocument xmlGame, XDocument xmlEdit)
+		{
+			XElement gameRoot = new XElement("GameInfo");
+			gameRoot.Add(new XElement("Files"));
+			xmlGame.Add(gameRoot);
+
+			XElement gameEdit = new XElement("GameChanges");
+			gameEdit.Add(new XElement("Files"));
+			xmlEdit.Add(gameEdit);
+		}
+
+		private static void TestNdsRom(string romPath)
+		{
+			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
+			Format romFormat = AddinManager.GetExtensionObjects<Format>()[0];
+
+			GameFolder main = new GameFolder("main");
+			// TEMPFIX:
+			GameFolder superoot = new GameFolder("");
+			superoot.AddFolder(main);
+			// END TEMPFIX 
+			GameFile   rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
+			main.AddFile(rom);
+			romFormat.Initialize(rom);
+
+			XDocument xmlGame = new XDocument();
+			XDocument xmlEdit = new XDocument();
+			CreateEmptyXmls(xmlGame, xmlEdit);
+			Worker worker = new Worker(xmlGame, xmlEdit, main);
+
+			GameFile file = worker.RescueFile("/main/Ninokuni [CLEAN].nds/ROM/data/UI/Menu/Skin/2/MainMenu/bg_a.n2d");
+			if (file != null)
+				Console.WriteLine("Good :)");
 		}
 	}
 }

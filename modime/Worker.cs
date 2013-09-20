@@ -35,12 +35,17 @@ namespace Modime
 
 		private List<string> updateQueue;
 
-		public Worker(string gameXml, string editXml, FileContainer root)
+		public Worker(XDocument gameXml, XDocument editXml, FileContainer root)
 		{
-			this.game = XDocument.Load(gameXml);
-			this.edit = XDocument.Load(editXml);
+			this.game = gameXml;
+			this.edit = editXml;
 			this.root = root;
 			this.updateQueue = new List<string>();
+		}
+
+		public Worker(string gameXml, string editXml, FileContainer root)
+			: this(XDocument.Load(gameXml), XDocument.Load(editXml), root)
+		{
 		}
 
 		public void Import()
