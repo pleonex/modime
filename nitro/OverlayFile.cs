@@ -23,7 +23,8 @@ namespace Nitro
 {
     using System;  
 	using Libgame;   
-    
+	using Libgame.IO;
+
     /// <summary>
     /// Represents an overlay file.
     /// </summary>

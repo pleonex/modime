@@ -24,6 +24,7 @@ namespace Nitro
 	using System;
 	using System.Text;
 	using Libgame;
+	using Libgame.IO;
 
 	/// <summary>
 	/// Represents the banner of a NDS game ROM.

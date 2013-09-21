@@ -23,7 +23,8 @@ namespace Nitro
 {
     using System;
 	using Libgame;
-    
+	using Libgame.IO;
+
     /// <summary>
     /// Folder with all the overlays of the same ARM.
     /// </summary>

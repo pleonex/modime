@@ -23,6 +23,7 @@ namespace Nitro
 {
     using System;
 	using Libgame;
+	using Libgame.IO;
 
     /// <summary>
     /// Header of the ROM.

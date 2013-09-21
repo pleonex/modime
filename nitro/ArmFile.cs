@@ -24,6 +24,7 @@ namespace Nitro
     using System;
     using System.Collections.Generic;
 	using Libgame;
+	using Libgame.IO;
     
     /// <summary>
     /// Description of ArmFile.

@@ -24,7 +24,8 @@ namespace Nitro
     using System;
 	using Libgame;
 	using Mono.Addins;
-    
+	using Libgame.IO;
+
      /* ROM sections:
       * 
       * Header (0x0000-0x4000)

@@ -23,6 +23,7 @@ using System;
 using System.IO;
 using System.Xml.Linq;
 using Libgame;
+using Libgame.IO;
 using Mono.Addins;
 
 [assembly:AddinRoot("modime", "0.2")]

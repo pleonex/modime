@@ -25,7 +25,8 @@ namespace Nitro
 	using System.Collections.Generic;
 	using System.Linq;
 	using Libgame;
-    
+	using Libgame.IO;
+
     /// <summary>
     /// File Allocation Table
     /// </summary>

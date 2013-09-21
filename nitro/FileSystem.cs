@@ -23,7 +23,8 @@ namespace Nitro
 {
     using System;
 	using Libgame;
-    
+	using Libgame.IO;
+
     /// <summary>
     /// Represents the file system of a NDS game ROM.
     /// </summary>
