@@ -19,7 +19,7 @@
 // <email>benito356@gmail.com</email>
 // <date>26/02/2013</date>
 //-----------------------------------------------------------------------
-namespace Nitro
+namespace Nitro.Rom
 {
     using System;
     using System.Collections.Generic;

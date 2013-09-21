@@ -10,6 +10,7 @@
     <RootNamespace>Nitro</RootNamespace>
     <AssemblyName>nitro</AssemblyName>
     <SynchReleaseVersion>false</SynchReleaseVersion>
+    <ReleaseVersion>0.2</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,15 +39,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ArmFile.cs" />
-    <Compile Include="Banner.cs" />
-    <Compile Include="Fat.cs" />
-    <Compile Include="FileSystem.cs" />
-    <Compile Include="Fnt.cs" />
-    <Compile Include="OverlayFile.cs" />
-    <Compile Include="OverlayFolder.cs" />
-    <Compile Include="Rom.cs" />
-    <Compile Include="RomHeader.cs" />
+    <Compile Include="Rom\ArmFile.cs" />
+    <Compile Include="Rom\Banner.cs" />
+    <Compile Include="Rom\Fat.cs" />
+    <Compile Include="Rom\FileSystem.cs" />
+    <Compile Include="Rom\Fnt.cs" />
+    <Compile Include="Rom\OverlayFile.cs" />
+    <Compile Include="Rom\OverlayFolder.cs" />
+    <Compile Include="Rom\Rom.cs" />
+    <Compile Include="Rom\RomHeader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -54,5 +55,8 @@
       <Project>{47373F3F-6A6A-4B2A-B06E-971D9FBDB545}</Project>
       <Name>libgame</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Rom\" />
   </ItemGroup>
 </Project>
