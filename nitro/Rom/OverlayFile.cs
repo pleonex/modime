@@ -160,14 +160,14 @@ namespace Nitro.Rom
             
 			uint encodingInfo = this.EncodedSize;
 			encodingInfo += (uint)((this.IsEncoded ? 1 : 0) << 24);
-            
+
 			dw.Write(this.OverlayId);
 			dw.Write(this.RamAddress);
 			dw.Write(this.RamSize);
 			dw.Write(this.BssSize);
 			dw.Write(this.StaticInitStart);
 			dw.Write(this.StaticInitEnd);
-			dw.Write((uint)this.Tags["Id"]);
+			dw.Write((uint)(ushort)this.Tags["Id"]);
             dw.Write(encodingInfo);
         }
     }

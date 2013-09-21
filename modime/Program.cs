@@ -97,13 +97,23 @@ namespace Modime
 
 			GameFile rom = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
 			romFormat.Initialize(rom);
-			romFormat.Read();
-			romFormat.Write(outStream);
-			outStream.WriteTo("/lab/nds/test.nds");
 
-			//Console.WriteLine("Result: {0}", DataStream.Compare(romStream, outStream));
+			DateTime t1 = DateTime.Now;
+			romFormat.Read();
+			DateTime t2 = DateTime.Now;
+			romFormat.Write(outStream);
+			DateTime t3 = DateTime.Now;
+			outStream.WriteTo("/lab/nds/test.nds");
+			DateTime t4 = DateTime.Now;
+
 			outStream.Dispose();
 			romStream.Dispose();
+
+			// Display time result
+			Console.WriteLine("Time results:");
+			Console.WriteLine("\tRead                    -> {0}", t2 - t1);
+			Console.WriteLine("\tWrite into MemoryStream -> {0}", t3 - t2);
+			Console.WriteLine("\tWrite into FileStream   -> {0}", t4 - t3);
 		}
 	}
 }

@@ -120,6 +120,11 @@ namespace Nitro.Rom
 			this.fileSys.Initialize(this.File, this.header);
 			this.fileSys.Read(str);
 
+			// Assign common tags (they will be assigned recursively)
+			this.File.Tags["_Device_"]    = "NDS";
+			this.File.Tags["_MakerCode_"] = this.header.MakerCode;
+			this.File.Tags["_GameCode_"]  = this.header.GameCode;
+
 			// Get the ROM folders with files and system files.
 			this.File.AddFolder(this.fileSys.Root);
 			this.File.AddFolder(this.fileSys.SystemFolder);
