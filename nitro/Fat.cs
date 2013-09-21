@@ -22,8 +22,8 @@
 namespace Nitro
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
+	using System.Collections.Generic;
+	using System.Linq;
 	using Libgame;
     
     /// <summary>
@@ -65,15 +65,19 @@ namespace Nitro
 			base.Initialize(file, parameters);
 
 			if (parameters.Length >= 1) {
-				// Get a list with all files sorted by ID
+				// Get a list with all files...
 				GameFolder root = parameters[0] as GameFolder;
-				List<GameFile> files = new List<GameFile>(root.GetFilesRecursive() as GameFile[]);	// TODO: This will break sure
-				files.OrderBy(f => int.Parse(f.Tags["GameId"]));
-				this.files = files.ToArray();
+				List<GameFile> fileList = new List<GameFile>();
+				foreach (FileContainer f in root.GetFilesRecursive())
+					fileList.Add(f as GameFile);
+
+				// ... and sort them by Id
+				fileList.OrderBy(f => int.Parse(f.Tags["Id"]));
+				this.files = fileList.ToArray();
 			}
 
 			if (parameters.Length == 2)
-				this.firstOffset = (uint)parameters[0];
+				this.firstOffset = (uint)parameters[1];
 		}
 		 
         /// <summary>
@@ -98,16 +102,14 @@ namespace Nitro
 					dw.Write((uint)(overlay.WriteAddress + overlay.Length));
                 }
                 
-                // Pad file
-				offset = offset.Pad(FileSystem.PaddingAddress);
+				offset = offset.Pad(FileSystem.PaddingAddress);	// Pad offset
             }
         }
         
 		public void WriteFiles(DataStream strOut)
 		{
 			// Write every file
-			foreach (GameFile file in this.files)
-			{
+			foreach (GameFile file in this.files) {
 				file.Stream.WriteTo(strOut);
 				strOut.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);
 			}
@@ -135,7 +137,9 @@ namespace Nitro
 			for (ushort i = 0; i < this.files.Length; i++) {
                 startOffset = dr.ReadUInt32();
 				endOffset   = dr.ReadUInt32();
-				this.files[i] = new GameFile(string.Empty, new DataStream(str, startOffset, endOffset));
+				this.files[i] = new GameFile(
+					string.Empty,	// Name will be added later in FNT
+					new DataStream(str, startOffset, endOffset - startOffset));
 				this.files[i].Tags["Id"] = i.ToString();
             }
             
@@ -153,7 +157,6 @@ namespace Nitro
 		{
 			throw new NotImplementedException();
 		}
-
 		public override void Import(DataStream strIn)
 		{
 			throw new NotImplementedException();

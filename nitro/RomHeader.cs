@@ -334,28 +334,28 @@ namespace Nitro
         {
 			DataWriter dw = new DataWriter(str);
             
-            dw.Write(this.gameTitle);
+			dw.Write(this.gameTitle);			// At 0x00
             dw.Write(this.gameCode);
-            dw.Write(this.makerCode);
+			dw.Write(this.makerCode);			// At 0x10
             dw.Write(this.unitCode);
             dw.Write(this.encryptionSeed);
             dw.Write((byte)(Math.Log(this.cartridgeSize, 2) - MinCartridge));
             dw.Write(this.reserved);
             dw.Write(this.RomVersion);
             dw.Write(this.internalFlags);
-            dw.Write(this.arm9Offset);
+			dw.Write(this.arm9Offset);			// At 0x20
             dw.Write(this.arm9EntryAddress);
             dw.Write(this.arm9RamAddress);
             dw.Write(this.arm9Size);
-            dw.Write(this.arm7Offset);
+			dw.Write(this.arm7Offset);			// At 0x30
             dw.Write(this.arm7EntryAddress);
             dw.Write(this.arm7RamAddress);
             dw.Write(this.arm7Size);
-            dw.Write(this.fntOffset);
+			dw.Write(this.fntOffset);			// At 0x40
             dw.Write(this.fntSize);
             dw.Write(this.fatOffset);
             dw.Write(this.fatSize);
-            dw.Write(this.ov9TableOffset);
+			dw.Write(this.ov9TableOffset);		// At 0x50
             dw.Write(this.ov9TableSize);
             dw.Write(this.ov7TableOffset);
             dw.Write(this.ov7TableSize);
@@ -440,11 +440,12 @@ namespace Nitro
 			this.unknown    = dr.ReadBytes(unknownSize);
         } 
 
+		// Maybe in a future, by importing/exporting some kind of extadata like a XML
+		// we could generate a ROM file from raw.
 		public override void Import(DataStream strIn)
 		{
 			throw new NotImplementedException();
 		}
-
 		public override void Export(DataStream strOut)
 		{
 			throw new NotImplementedException();

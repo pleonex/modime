@@ -22,8 +22,6 @@
 namespace Nitro
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 	using Libgame;
 	using Mono.Addins;
     
@@ -76,7 +74,7 @@ namespace Nitro
 		}
 
         /// <summary>
-        /// Write a new ROM file.
+		/// Write a new ROM data.
         /// </summary>
         /// <param name="str">Stream to write to.</param>
 		public override void Write(DataStream strOut)
@@ -92,7 +90,7 @@ namespace Nitro
 			headerStr.WriteTo(strOut);
 			fileSysStr.WriteTo(strOut);
 			bannerStr.WriteTo(strOut);
-			this.fileSys.AppendFiles(strOut);
+			this.fileSys.WriteFiles(strOut);
 			strOut.WriteUntilLength(FileSystem.PaddingByte, (int)this.header.CartridgeSize);
 
 			headerStr.Dispose();
@@ -106,25 +104,32 @@ namespace Nitro
         /// <param name="str">Stream to read from.</param>
 		public override void Read(DataStream str)
         {
+			// Read header
 			str.Seek(0, SeekMode.Origin);
 			this.header = new RomHeader();
 			this.header.Read(str);
 
+			// Read banner
 			str.Seek(this.header.BannerOffset, SeekMode.Origin);
 			this.banner  = new Banner();
 			this.banner.Read(str);
 
+			// Read file system: FAT and FNT
 			this.fileSys = new FileSystem();
 			this.fileSys.Initialize(this.File, this.header);
 			this.fileSys.Read(str);
+
+			// Get the ROM folders with files and system files.
 			this.File.AddFolder(this.fileSys.Root);
+			this.File.AddFolder(this.fileSys.SystemFolder);
         }
 
+		// Maybe in a future, by importing/exporting some kind of extadata like a XML
+		// we could generate a ROM file from raw.
 		public override void Export(DataStream strOut)
 		{
 			throw new NotImplementedException();
 		}
-
 		public override void Import(DataStream strIn)
 		{
 			throw new NotImplementedException();

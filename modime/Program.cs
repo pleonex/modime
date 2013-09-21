@@ -38,11 +38,17 @@ namespace Modime
 			AddinManager.Registry.Update();
 
 			// Tests
-			TestNdsRom("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
+			DateTime startTime = DateTime.Now;
+//			TestNdsRomRead(
+//				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
+//				"/main/Ninokuni [CLEAN].nds/ROM/data/UI/Menu/Skin/2/MainMenu/bg_a.n2d",
+//				"/lab/nds/projects/generic/bg_a.n2d");
+			TestNdsRomWrite("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
+			DateTime endTime = DateTime.Now;
 
 			// Soon...
 
-			Console.WriteLine("Done!");
+			Console.WriteLine("Done! {0}", (endTime - startTime));
 		}
 
 		private static void CreateEmptyXmls(XDocument xmlGame, XDocument xmlEdit)
@@ -56,7 +62,7 @@ namespace Modime
 			xmlEdit.Add(gameEdit);
 		}
 
-		private static void TestNdsRom(string romPath)
+		private static void TestNdsRomRead(string romPath, string filePath, string outPath)
 		{
 			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
 			Format romFormat = AddinManager.GetExtensionObjects<Format>()[0];
@@ -75,9 +81,28 @@ namespace Modime
 			CreateEmptyXmls(xmlGame, xmlEdit);
 			Worker worker = new Worker(xmlGame, xmlEdit, main);
 
-			GameFile file = worker.RescueFile("/main/Ninokuni [CLEAN].nds/ROM/data/UI/Menu/Skin/2/MainMenu/bg_a.n2d");
+			GameFile file = worker.RescueFile(filePath);
 			if (file != null)
-				Console.WriteLine("Good :)");
+				file.Stream.WriteTo(outPath);
+
+			romStream.Dispose();
+		}
+
+		private static void TestNdsRomWrite(string romPath)
+		{
+			DataStream outStream = new DataStream(new MemoryStream(), 0, 0);
+			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
+			Format romFormat = AddinManager.GetExtensionObjects<Format>()[0];
+
+			GameFile rom = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
+			romFormat.Initialize(rom);
+			romFormat.Read();
+			romFormat.Write(outStream);
+			outStream.WriteTo("/lab/nds/test.nds");
+
+			//Console.WriteLine("Result: {0}", DataStream.Compare(romStream, outStream));
+			outStream.Dispose();
+			romStream.Dispose();
 		}
 	}
 }

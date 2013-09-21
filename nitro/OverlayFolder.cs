@@ -58,21 +58,16 @@ namespace Nitro
             OverlayFolder overlays = new OverlayFolder(isArm9);
             
             int numOverlays;
-            if (isArm9)
-            {
+			if (isArm9) {
 				str.Seek(header.Ov9TableOffset, SeekMode.Origin);
                 numOverlays = (int)(header.Ov9TableSize / OverlayFile.TableEntrySize);
-            }
-            else
-            {
+			} else {
 				str.Seek(header.Ov7TableOffset, SeekMode.Origin);
                 numOverlays = (int)(header.Ov7TableSize / OverlayFile.TableEntrySize);
             }
             
             for (int i = 0; i < numOverlays; i++)
-            {
-                overlays.AddFile(OverlayFile.FromTable(str, listFiles));
-            }
+				overlays.AddFile(OverlayFile.FromTable(str, isArm9, listFiles));
             
             return overlays;
         }
@@ -88,40 +83,29 @@ namespace Nitro
             long startOffset = str.Position;
             int numOverlays = 0;   
             
-			foreach (GameFile file in this.Files)
-            {
+			// For each overlay, writes its info
+			foreach (GameFile file in this.Files) {
                 OverlayFile ov = file as OverlayFile;
-                if (ov != null)
-                {
-                    ov.WriteTable(str);
-                    numOverlays++;
-                }
+				if (ov == null)
+					continue;
+
+                ov.WriteTable(str);
+                numOverlays++;
             }
             
-            // Update rom header
-            if (this.isArm9)
-            {
+			// Updates RomHeader
+			if (this.isArm9) {
                 header.Ov9TableSize = (uint)(numOverlays * OverlayFile.TableEntrySize);
                 if (numOverlays > 0)
-                {
                     header.Ov9TableOffset = (uint)(shiftOffset + startOffset);
-                }
                 else
-                {
                     header.Ov9TableOffset = 0x00;
-                }
-            }
-            else
-            {
+			} else {
                 header.Ov7TableSize = (uint)(numOverlays * OverlayFile.TableEntrySize);
                 if (numOverlays > 0)
-                {
                     header.Ov7TableOffset = (uint)(shiftOffset + startOffset);
-                }
                 else
-                {
                     header.Ov7TableOffset = 0x00;
-                }
             }
         }        
     }

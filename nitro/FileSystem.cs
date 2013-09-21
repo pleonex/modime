@@ -22,9 +22,6 @@
 namespace Nitro
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
 	using Libgame;
     
     /// <summary>
@@ -33,10 +30,9 @@ namespace Nitro
 	public sealed class FileSystem : Format
     {        
         private RomHeader header;
-		private GameFolder root;         // Parent folder of the ROM file system.
+		private GameFolder root;         // Parent folder with ROM files.
 		private GameFolder sysFolder;    // Folder with ARM, overlays and info files.
-        
-        
+             
         /// <summary>
         /// Gets the padding used in the ROM.
         /// </summary>
@@ -81,58 +77,14 @@ namespace Nitro
 				this.header = (RomHeader)parameters[0];
 		}
 
-        /// <summary>
-        /// Write the file system to the stream.
-        /// </summary>
-        /// <param name="str">Stream to write to.</param>
-		public override void Write(DataStream str)
-        {
-            // The order is: ARM9 - Overlays9 - ARM7 - Overlays7 - FNT - FAT
-            this.WriteArm(str, true);
-            this.WriteArm(str, false);
-            
-            int numOverlays = this.CountOverlays(false) + this.CountOverlays(true);
-            
-			Fnt fnt = new Fnt();
-			fnt.Initialize(null, this.root, numOverlays);
-            this.header.FntOffset = (uint)(this.header.HeaderSize + str.Position);
-            long fntStartOffset = str.Position;
-            fnt.Write(str);
-            this.header.FntSize = (uint)(str.Position - fntStartOffset);
-			str.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);
-            
-			GameFolder tmpFolder = new GameFolder(string.Empty);
-			tmpFolder.AddFolders(this.sysFolder.Folders);	// Overlay folders
-			tmpFolder.AddFolder(this.root);					// Game files
-            
-			// Write File Allocation Table
-			Fat fat = new Fat();
-			fat.Initialize(null, tmpFolder, Banner.Size + this.header.HeaderSize);
-            fat.Write(str);
-			str.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);
-
-			this.header.FatOffset = (uint)(this.header.HeaderSize + str.Position);
-			this.header.FatSize = fat.Size;
-        }
-                
-        /// <summary>
-        /// Appends all the files listed before in the Write method to a file.
-        /// </summary>
-        /// <param name="fileOut">File to append the files.</param>
-		public void AppendFiles(DataStream strOut)
-        {                        
-			Fat fat = new Fat();
-			fat.Initialize(null, this.root);
-			fat.WriteFiles(strOut);
-        }
-        
-        /// <summary>
-        /// Read the file system of the ROM and create the folder tree.
-        /// </summary>
-        /// <param name="str">Stream to read the file system.</param>
+		/// <summary>
+		/// Read the file system of the ROM and create the folder tree.
+		/// </summary>
+		/// <param name="str">Stream to read the file system.</param>
 		public override void Read(DataStream str)
-        {
+		{
 			// Read File Allocation Table
+			// I'm creating a new DataStream variable because Fat class needs to know its length.
 			DataStream fatStr = new DataStream(str, this.header.FatOffset, this.header.FatSize);
 			Fat fat = new Fat();
 			fat.Read(fatStr);
@@ -142,17 +94,71 @@ namespace Nitro
 			str.Seek(header.FntOffset, SeekMode.Origin);
 			Fnt fnt = new Fnt();
 			fnt.Read(str);
-            this.root = fnt.CreateTree(fat.GetFiles());
-            
+
+			// Get root folder
+			this.root = fnt.CreateTree(fat.GetFiles());
+
+			// Get ARM and Overlay files
 			this.sysFolder = new GameFolder("System");
+
+			this.sysFolder.AddFile(ArmFile.FromStream(str, this.header, true));
+			this.sysFolder.AddFolder(OverlayFolder.FromTable(str, this.header, true, fat.GetFiles()));
+
+			this.sysFolder.AddFile(ArmFile.FromStream(str, this.header, false));
+			this.sysFolder.AddFolder(OverlayFolder.FromTable(str, this.header, false, fat.GetFiles()));
+		}
+	
+        /// <summary>
+        /// Write the file system to the stream.
+        /// </summary>
+        /// <param name="str">Stream to write to.</param>
+		public override void Write(DataStream str)
+        {
+            // The order is: ARM9 - Overlays9 - ARM7 - Overlays7 - FNT - FAT
+			this.WriteArm(str, true);	// Write ARM9
+			this.WriteArm(str, false);	// Write ARM7
             
-            this.sysFolder.AddFile(ArmFile.FromStream(str, this.header, true));
-            this.sysFolder.AddFolder(OverlayFolder.FromTable(str, this.header, true, fat.GetFiles()));
+			// To get the first ROM file ID
+            int numOverlays = this.CountOverlays(false) + this.CountOverlays(true);
             
-            this.sysFolder.AddFile(ArmFile.FromStream(str, this.header, false));
-            this.sysFolder.AddFolder(OverlayFolder.FromTable(str, this.header, false, fat.GetFiles()));
+			// Create a new File Name Table...
+			Fnt fnt = new Fnt();
+			fnt.Initialize(null, this.root, numOverlays);
+
+			// ... and writes it
+            this.header.FntOffset = (uint)(this.header.HeaderSize + str.Position);
+            long fntStartOffset = str.Position;
+            fnt.Write(str);
+            this.header.FntSize = (uint)(str.Position - fntStartOffset);
+			str.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);
+            
+			// Create a temp dir with every file to be register in the FAT (Game + System)
+			GameFolder tmpFolder = new GameFolder(string.Empty);
+			tmpFolder.AddFolders(this.sysFolder.Folders);	// Overlay folders
+			tmpFolder.AddFolder(this.root);					// Game files
+            
+			// Write File Allocation Table
+			Fat fat = new Fat();
+			fat.Initialize(null, tmpFolder, Banner.Size + this.header.HeaderSize);	// First file offset after banner
+			this.header.FatOffset = (uint)(this.header.HeaderSize + str.Position);
+			fat.Write(str);
+			str.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);
+			this.header.FatSize = fat.Size;
         }
-        
+                
+        /// <summary>
+		/// Writes every ROM file (except System files) into the Stream.
+        /// </summary>
+		/// <param name="strOut">Output stream.</param>
+		public void WriteFiles(DataStream strOut)
+        {  
+			// Uses the Fat class because there it's donde the implementation
+			// to sorted them                      
+			Fat fat = new Fat();
+			fat.Initialize(null, this.root);
+			fat.WriteFiles(strOut);
+        }
+             
 		private void WriteArm(DataStream str, bool isArm9)
         {
             // Write the ARM file.
@@ -161,19 +167,22 @@ namespace Nitro
 				if (arm == null || arm.IsArm9 != isArm9)
 					continue;
 
+				// Writes to this Stream but sets the its address after RomHeader
                 arm.UpdateAndWrite(str, this.header, this.header.HeaderSize);
 				str.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);
             }
             
-            // Write the overlay table and overlays
+			// Writes the overlay table and overlays
 			foreach (GameFolder folder in this.sysFolder.Folders) {
                 OverlayFolder overlayFolder = folder as OverlayFolder;
 				if (overlayFolder == null || overlayFolder.IsArm9 != isArm9)
 					continue;
 
+				// Writes overlay info
                 overlayFolder.WriteTable(str, this.header, this.header.HeaderSize);
 				str.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);
-                    
+                
+				// Write overlays
 				foreach (GameFile file in overlayFolder.Files) {
 					OverlayFile overlay = file as OverlayFile;
 					if (overlay == null)
@@ -204,11 +213,11 @@ namespace Nitro
             return count;
         }
 
+		// Maybe to export / import the full file system as XML?
 		public override void Export(DataStream strOut)
 		{
 			throw new NotImplementedException();
 		}
-
 		public override void Import(DataStream strIn)
 		{
 			throw new NotImplementedException();

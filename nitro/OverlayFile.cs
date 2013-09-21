@@ -29,21 +29,11 @@ namespace Nitro
     /// </summary>
 	public class OverlayFile : GameFile
     {
-        private uint overlayId;
-        private uint ramAddress;
-        private uint ramSize;
-        private uint bssSize;
-        private uint staticInitStart;
-        private uint staticInitEnd;
-        private uint encodedSize;
-        private bool isEncoded;
-        private uint writeAddress;
-
-		private OverlayFile(GameFile baseFile)
-			: base(baseFile.Name, baseFile.Stream)
+		private OverlayFile(GameFile baseFile, bool isArm9)
+			: base(string.Empty, baseFile.Stream)
         {
 			this.Tags["Id"] = baseFile.Tags["Id"];
-            this.Name = baseFile.Name;
+			this.Name = "Overlay" + (isArm9 ? "9" : "7") + "_" + this.Tags["Id"] + ".bin";
         }
                 
         #region Properties
@@ -59,82 +49,73 @@ namespace Nitro
         /// <summary>
         /// Gets or sets the ID of the overlay.
         /// </summary>
-        public uint OverlayId
-        {
-            get { return this.overlayId; }
-            set { this.overlayId = value; }
+        public uint OverlayId {
+			get;
+			set;
         }
 
         /// <summary>
         /// Gets or sets the address where the overlay will be load in the RAM.
         /// </summary>
-        public uint RamAddress
-        {
-            get { return this.ramAddress; }
-            set { this.ramAddress = value; }
+        public uint RamAddress {
+			get;
+			set;
         }
 
         /// <summary>
         /// Gets or sets the amount of bytes to load in RAM of the overlay.
         /// </summary>
-        public uint RamSize
-        {
-            get { return this.ramSize; }
-            set { this.ramSize = value; }
-        }
+        public uint RamSize {
+			get;
+			set;
+		}
 
         /// <summary>
         /// Gets or sets the size of the BSS data region.
         /// </summary>
-        public uint BssSize
-        {
-            get { return this.bssSize; }
-            set { this.bssSize = value; }
+        public uint BssSize {
+			get;
+			set;
         }
 
         /// <summary>
         /// Gets or sets the static initialization start address.
         /// </summary>
-        public uint StaticInitStart
-        {
-            get { return this.staticInitStart; }
-            set { this.staticInitStart = value; }
+        public uint StaticInitStart {
+			get;
+			set;
         }
         
         /// <summary>
         /// Gets or sets the static initialization end address.
         /// </summary>
-        public uint StaticInitEnd
-        {
-            get { return this.staticInitEnd; }
-            set { this.staticInitEnd = value; }
+        public uint StaticInitEnd {
+			get;
+			set;
         }
 
         /// <summary>
         /// Gets or sets the size of the overlay encoded. 0 if no encoding.
         /// </summary>
-        public uint EncodedSize
-        {
-            get { return this.encodedSize; }
-            set { this.encodedSize = value; }
+        public uint EncodedSize {
+			get;
+			set;
         }
         
         /// <summary>
         /// Gets or sets a value indicating whether the overlay is encoding.
         /// </summary>
-        public bool IsEncoded
-        {
-            get { return this.isEncoded; }
-            set { this.isEncoded = value; }
+        public bool IsEncoded {
+			get;
+			set;
         }
         
         /// <summary>
         /// Gets or sets the address where this overlay will be written
         /// </summary>
-        public uint WriteAddress
-        {
-            get { return this.writeAddress; }
-            set { this.writeAddress = value; }
+        public uint WriteAddress {
+			get;
+			set;
         }
         
         #endregion
@@ -145,7 +126,7 @@ namespace Nitro
         /// <param name="str">Stream to read the table.</param>
         /// <param name="listFiles">List of files where the overlay must be.</param>
         /// <returns>Overlay file.</returns>
-		public static OverlayFile FromTable(DataStream str, GameFile[] listFiles)
+		public static OverlayFile FromTable(DataStream str, bool isArm9, GameFile[] listFiles)
         {
 			DataReader dr = new DataReader(str);
             
@@ -153,17 +134,17 @@ namespace Nitro
             uint fileId = dr.ReadUInt32();
 			str.Seek(-0x1C, SeekMode.Current);
             
-            OverlayFile overlay = new OverlayFile(listFiles[fileId]);
-            overlay.OverlayId = dr.ReadUInt32();
-            overlay.RamAddress = dr.ReadUInt32();
-            overlay.RamSize = dr.ReadUInt32();
-            overlay.BssSize = dr.ReadUInt32();
+			OverlayFile overlay = new OverlayFile(listFiles[fileId], isArm9);
+			overlay.OverlayId       = dr.ReadUInt32();
+			overlay.RamAddress      = dr.ReadUInt32();
+			overlay.RamSize         = dr.ReadUInt32();
+			overlay.BssSize         = dr.ReadUInt32();
             overlay.StaticInitStart = dr.ReadUInt32();
-            overlay.StaticInitEnd = dr.ReadUInt32();
+			overlay.StaticInitEnd   = dr.ReadUInt32();
             dr.ReadUInt32();    // File ID again
-            uint encodingInfo = dr.ReadUInt32();
+			uint encodingInfo   = dr.ReadUInt32();
             overlay.EncodedSize = encodingInfo & 0x00FFFFFF;
-            overlay.isEncoded = (encodingInfo >> 24) == 1;
+			overlay.IsEncoded   = (encodingInfo >> 24) == 1;
             
             return overlay;
         }
@@ -176,15 +157,15 @@ namespace Nitro
         {
 			DataWriter dw = new DataWriter(str);
             
-            uint encodingInfo = this.encodedSize;
-            encodingInfo += (uint)((this.isEncoded ? 1 : 0) << 24);
+			uint encodingInfo = this.EncodedSize;
+			encodingInfo += (uint)((this.IsEncoded ? 1 : 0) << 24);
             
-            dw.Write(this.overlayId);
-            dw.Write(this.ramAddress);
-            dw.Write(this.ramSize);
-            dw.Write(this.bssSize);
-            dw.Write(this.staticInitStart);
-            dw.Write(this.staticInitEnd);
+			dw.Write(this.OverlayId);
+			dw.Write(this.RamAddress);
+			dw.Write(this.RamSize);
+			dw.Write(this.BssSize);
+			dw.Write(this.StaticInitStart);
+			dw.Write(this.StaticInitEnd);
 			dw.Write(uint.Parse(this.Tags["Id"]));
             dw.Write(encodingInfo);
         }

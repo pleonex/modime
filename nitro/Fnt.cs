@@ -49,6 +49,19 @@ namespace Nitro
 			}
 		}
 		  
+		/// <summary>
+		/// Create the folder tree.
+		/// </summary>
+		/// <param name="files">Files in the tree.</param>
+		/// <returns>Root folder</returns>
+		public GameFolder CreateTree(GameFile[] files)
+		{
+			GameFolder root = new GameFolder("ROM");
+			root.Tags["Id"] =  this.tables.Length.ToString();
+			this.CreateTree(root, files);
+			return root;
+		}
+
         /// <summary>
         /// Write a <see cref="Fnt" /> section in a stream.
         /// </summary>
@@ -66,22 +79,9 @@ namespace Nitro
             
             // Write subtables
             foreach (Fnt.FntTable table in this.tables)
-                WriteSubTable(str, table);
+				table.Write(str);
         }
-        
-        /// <summary>
-        /// Create the folder tree.
-        /// </summary>
-        /// <param name="files">Files in the tree.</param>
-        /// <returns>Root folder</returns>
-		public GameFolder CreateTree(GameFile[] files)
-        {
-			GameFolder root = new GameFolder("ROM");
-			root.Tags["Id"] =  this.tables.Length.ToString();
-            this.CreateTree(root, files);
-            return root;
-        }
-        
+                
         /// <summary>
         /// Read a FNT section from a stream.
         /// </summary>
@@ -109,80 +109,19 @@ namespace Nitro
                     break;
                 }
                 
-                FntTable table = new FntTable();
-                table.Offset = dr.ReadUInt32();
-                table.IdFirstFile = dr.ReadUInt16();
-                table.IdParentFolder = dr.ReadUInt16();
+				FntTable table = new FntTable(
+					dr.ReadUInt32(),	// Offset
+					dr.ReadUInt16(),	// Id First File
+					dr.ReadUInt16());	// Id Parent Folder
 
                 // Read subtable
 				str.Seek(fntOffset + table.Offset, SeekMode.Origin);
-                ReadSubTable(str, table);
+				table.Read(str);
             
                 this.tables[i] = table;
             }
         }
-        
-		private static void ReadSubTable(DataStream str, FntTable table)
-        {
-			DataReader dr = new DataReader(str, EndiannessMode.LittleEndian, DefaultEncoding);
-            
-            byte nodeType = dr.ReadByte();
-            ushort fileId = table.IdFirstFile;
                 
-            int nameLength;
-            string name;
-            
-            // Read until the end of the subtable (reachs 0x00)
-            while (nodeType != 0x0)
-            {
-                // If the node is a file.
-                if (nodeType < 0x80)
-                {
-                    nameLength = nodeType;
-					name = dr.ReadString(nameLength);
-            
-                    table.AddFileInfo(name, fileId++);
-                }
-                else
-                {
-                    nameLength = nodeType - 0x80;
-					name = dr.ReadString(nameLength);
-                    ushort folderId = dr.ReadUInt16();
-    
-                    table.AddFolderInfo(name, folderId);
-                }
-    
-                nodeType = dr.ReadByte();
-            }
-        }
-        
-		private static void WriteSubTable(DataStream str, FntTable table)
-        {
-			DataWriter bw = new DataWriter(str);
-            
-            byte nodeType;
-            
-            // Write file info
-            foreach (ElementInfo info in table.Files)
-            {
-                nodeType = (byte)DefaultEncoding.GetByteCount(info.Name); // Name length
-                bw.Write(nodeType);
-                bw.Write(DefaultEncoding.GetBytes(info.Name));
-            }
-            
-            // Write folder info
-            foreach (ElementInfo info in table.Folders)
-            {
-                nodeType = (byte)(0x80 | DefaultEncoding.GetByteCount(info.Name));
-                bw.Write(nodeType);
-                bw.Write(DefaultEncoding.GetBytes(info.Name));
-                bw.Write(info.Id);
-            }
-            
-            bw.Write((byte)0x00);   // End of info
-            bw = null;
-        }
-        
 		private static int CountDirectories(GameFolder folder)
         {
             int numDirs = folder.Folders.Count;
@@ -208,23 +147,17 @@ namespace Nitro
         {
             ushort id = 0xFFFF;
             
-            // Searchs in all the files
-			foreach (GameFile file in folder.Files)
-            {
+            // Searchs in files
+			foreach (GameFile file in folder.Files) {
 				if (int.Parse(file.Tags["Id"]) < id)
-                {
 					id = ushort.Parse(file.Tags["Id"]);
-                }
             }
             
             // Searchs in subfolders
-			foreach (GameFolder subfolder in folder.Folders)
-            {
+			foreach (GameFolder subfolder in folder.Folders) {
                 ushort fId = GetIdFirstFile(subfolder);
                 if (fId < id)
-                {
                     id = fId;
-                }
             }
             
             return id;
@@ -236,15 +169,13 @@ namespace Nitro
 			                int.Parse(currentFolder.Tags["Id"]) & 0x0FFF : 0;
             
             // Add files
-            foreach (ElementInfo fileInfo in this.tables[folderId].Files)
-            {
+			foreach (ElementInfo fileInfo in this.tables[folderId].Files) {
 				listFile[fileInfo.Id].Name = fileInfo.Name;
                 currentFolder.AddFile(listFile[fileInfo.Id]);
             }
             
             // Add subfolders
-            foreach (ElementInfo folderInfo in this.tables[folderId].Folders)
-            {
+			foreach (ElementInfo folderInfo in this.tables[folderId].Folders) {
 				GameFolder subFolder = new GameFolder(folderInfo.Name);
 				subFolder.Tags["Id"] =  folderInfo.Id.ToString();
                 this.CreateTree(subFolder, listFile);
@@ -261,43 +192,36 @@ namespace Nitro
             
             // For each directory create its table.
             uint subtableOffset = (uint)(this.tables.Length * Fnt.FntTable.MainTableSize);
-            this.CreateTablesRecur(root, (ushort)numDirs, ref subtableOffset);
+            this.CreateTablesRecursive(root, (ushort)numDirs, ref subtableOffset);
         }
         
-		private void CreateTablesRecur(GameFolder currentFolder, ushort parentId, ref uint subtablesOffset)
+		private void CreateTablesRecursive(GameFolder currentFolder, ushort parentId, ref uint subtablesOffset)
         {
 			int folderId = (int.Parse(currentFolder.Tags["Id"]) > 0x0FFF) ?
 			                int.Parse(currentFolder.Tags["Id"]) & 0x0FFF : 0;
             
-            this.tables[folderId] = new Fnt.FntTable();
-            this.tables[folderId].Offset = subtablesOffset;
-            this.tables[folderId].IdParentFolder = parentId;
-            this.tables[folderId].IdFirstFile = GetIdFirstFile(currentFolder);
+			this.tables[folderId] = new Fnt.FntTable(
+				subtablesOffset,
+				GetIdFirstFile(currentFolder),
+				parentId);
             
             // Set the info values
 			foreach (GameFile file in currentFolder.Files)
-            {
 				this.tables[folderId].AddFileInfo(file.Name, ushort.Parse(file.Tags["Id"]));
-            }
             
 			foreach (GameFolder folder in currentFolder.Folders)
-            {
 				this.tables[folderId].AddFolderInfo(folder.Name, ushort.Parse(folder.Tags["Id"]));
-            }
             
             subtablesOffset += (uint)this.tables[folderId].GetInfoSize();
             
 			foreach (GameFolder folder in currentFolder.Folders)
-            {
-                this.CreateTablesRecur(folder, (ushort)(0xF000 | folderId), ref subtablesOffset);
-            }
+                this.CreateTablesRecursive(folder, (ushort)(0xF000 | folderId), ref subtablesOffset);
         }
         
 		public override void Export(DataStream strOut)
 		{
 			throw new NotImplementedException();
 		}
-
 		public override void Import(DataStream strIn)
 		{
 			throw new NotImplementedException();
@@ -313,56 +237,53 @@ namespace Nitro
         /// <summary>
         /// Substructure inside of the File Name Table.
         /// </summary>
-        private class FntTable
+		private struct FntTable
         {
-            private uint offset;
-            private ushort idFirstFile;
-            private ushort idParentFolder;
             private List<ElementInfo> folders;
             private List<ElementInfo> files;
             
             /// <summary>
             /// Initializes a new instance of the <see cref="FntTable" /> class.
             /// </summary>
-            public FntTable()
+			public FntTable(uint Offset, ushort idFirstFile, ushort idParentFolder)
+				: this()
             {
+				this.Offset = Offset;
+				this.IdFirstFile = idFirstFile;
+				this.IdParentFolder = idParentFolder;
                 this.folders = new List<Fnt.ElementInfo>();
-                this.files = new List<Fnt.ElementInfo>();
+				this.files   = new List<Fnt.ElementInfo>();
             }
             
             /// <summary>
             /// Gets the size of the main table data.
             /// </summary>
-            public static int MainTableSize
-            {
+			public static int MainTableSize {
                 get { return 0x08; }
             }
             
             /// <summary>
             /// Gets or sets the relative offset to the folder info.
             /// </summary>
-            public uint Offset 
-            {
-                get { return this.offset; }
-                set { this.offset = value; }
+            public uint Offset {
+				get;
+				private set;
             }
 
             /// <summary>
             /// Gets or sets the id of the first file in this folder (or in its subfolders).
             /// </summary>
-            public ushort IdFirstFile
-            {
-                get { return this.idFirstFile; }
-                set { this.idFirstFile = value; }
+            public ushort IdFirstFile {
+				get;
+				private set;
             }
 
             /// <summary>
             /// Gets or sets the id of the parent folder.
             /// </summary>
-            public ushort IdParentFolder
-            {
-                get { return this.idParentFolder; }
-                set { this.idParentFolder = value; }
+            public ushort IdParentFolder {
+				get;
+				private set;
             }
 
             /// <summary>
@@ -409,20 +330,73 @@ namespace Nitro
             {
                 int size = 1;   // End node type
                 
-                foreach (ElementInfo info in this.files)
-                {
+				foreach (ElementInfo info in this.files) {
                     size += 1;  // Node type
                     size += DefaultEncoding.GetByteCount(info.Name);
                 }
                 
-                foreach (ElementInfo info in this.folders)
-                {
+				foreach (ElementInfo info in this.folders) {
                     size += 3;  // Node type + folder ID
                     size += DefaultEncoding.GetByteCount(info.Name);
                 }
                 
                 return size;
             }
+
+			public void Read(DataStream str)
+			{
+				DataReader dr = new DataReader(str, EndiannessMode.LittleEndian, DefaultEncoding);
+
+				byte nodeType = dr.ReadByte();
+				ushort fileId = this.IdFirstFile;
+
+				int nameLength;
+				string name;
+
+				// Read until the end of the subtable (reachs 0x00)
+				while (nodeType != 0x0) {
+					// If the node is a file.
+					if (nodeType < 0x80) {
+						nameLength = nodeType;
+						name = dr.ReadString(nameLength);
+
+						this.AddFileInfo(name, fileId++);
+					} else {
+						nameLength = nodeType - 0x80;
+						name = dr.ReadString(nameLength);
+						ushort folderId = dr.ReadUInt16();
+
+						this.AddFolderInfo(name, folderId);
+					}
+
+					nodeType = dr.ReadByte();
+				}
+			}
+
+			public void Write(DataStream str)
+			{
+				DataWriter bw = new DataWriter(str);
+
+				byte nodeType;
+
+				// Write file info
+				foreach (ElementInfo info in this.Files) {
+					nodeType = (byte)DefaultEncoding.GetByteCount(info.Name); // Name length
+					bw.Write(nodeType);
+					bw.Write(DefaultEncoding.GetBytes(info.Name));
+				}
+
+				// Write folder info
+				foreach (ElementInfo info in this.Folders) {
+					nodeType = (byte)(0x80 | DefaultEncoding.GetByteCount(info.Name));
+					bw.Write(nodeType);
+					bw.Write(DefaultEncoding.GetBytes(info.Name));
+					bw.Write(info.Id);
+				}
+
+				bw.Write((byte)0x00);   // End of info
+				bw = null;
+			}
         }
     }
 }
