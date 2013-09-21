@@ -216,11 +216,11 @@ namespace Nitro.Rom
         }
 
 		// Maybe to export / import the full file system as XML?
-		public override void Export(DataStream strOut)
+		public override void Export(params DataStream[] strOut)
 		{
 			throw new NotImplementedException();
 		}
-		public override void Import(DataStream strIn)
+		public override void Import(params DataStream[] strIn)
 		{
 			throw new NotImplementedException();
 		}

@@ -443,11 +443,11 @@ namespace Nitro.Rom
 
 		// Maybe in a future, by importing/exporting some kind of extadata like a XML
 		// we could generate a ROM file from raw.
-		public override void Import(DataStream strIn)
+		public override void Export(params DataStream[] strOut)
 		{
 			throw new NotImplementedException();
 		}
-		public override void Export(DataStream strOut)
+		public override void Import(params DataStream[] strIn)
 		{
 			throw new NotImplementedException();
 		}

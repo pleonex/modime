@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using Libgame;
 using Mono.Addins;
@@ -50,12 +51,11 @@ namespace Modime
 
 		public void Import()
 		{
-			// TODO: Support import from more than one file (ie: png + xml for nftr)
 			XElement files = edit.Root.Element("Files");
 
 			foreach (XElement fileEdit in files.Elements("File")) {
-				string path   = fileEdit.Element("Path").Value;
-				string import = fileEdit.Element("Import").Value;
+				string path = fileEdit.Element("Path").Value;
+				string[] import = fileEdit.Elements("Import").Select(f => f.Value).ToArray();
 
 				GameFile file = this.RescueFile(path);
 				file.Format.Read();
