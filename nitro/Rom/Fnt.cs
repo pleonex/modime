@@ -58,7 +58,7 @@ namespace Nitro.Rom
 		public GameFolder CreateTree(GameFile[] files)
 		{
 			GameFolder root = new GameFolder("ROM");
-			root.Tags["Id"] =  this.tables.Length.ToString();
+			root.Tags["Id"] =  (ushort)this.tables.Length;
 			this.CreateTree(root, files);
 			return root;
 		}
@@ -136,7 +136,7 @@ namespace Nitro.Rom
 		private static int ReassignFileIds(GameFolder folder, int currentId)
         {
 			foreach (GameFile file in folder.Files)
-				file.Tags["Id"] = (currentId++).ToString();
+				file.Tags["Id"] = (ushort)(currentId++);
             
 			foreach (GameFolder subfolder in folder.Folders)
                 currentId = ReassignFileIds(subfolder, currentId);
@@ -150,8 +150,8 @@ namespace Nitro.Rom
             
             // Searchs in files
 			foreach (GameFile file in folder.Files) {
-				if (int.Parse(file.Tags["Id"]) < id)
-					id = ushort.Parse(file.Tags["Id"]);
+				if ((ushort)file.Tags["Id"] < id)
+					id = (ushort)file.Tags["Id"];
             }
             
             // Searchs in subfolders
@@ -166,8 +166,8 @@ namespace Nitro.Rom
         
 		private void CreateTree(GameFolder currentFolder, GameFile[] listFile)
         {
-			int folderId = (int.Parse(currentFolder.Tags["Id"]) > 0x0FFF) ?
-			                int.Parse(currentFolder.Tags["Id"]) & 0x0FFF : 0;
+			int folderId = ((ushort)currentFolder.Tags["Id"] > 0x0FFF) ?
+			                (ushort)currentFolder.Tags["Id"] & 0x0FFF : 0;
             
             // Add files
 			foreach (ElementInfo fileInfo in this.tables[folderId].Files) {
@@ -178,7 +178,7 @@ namespace Nitro.Rom
             // Add subfolders
 			foreach (ElementInfo folderInfo in this.tables[folderId].Folders) {
 				GameFolder subFolder = new GameFolder(folderInfo.Name);
-				subFolder.Tags["Id"] =  folderInfo.Id.ToString();
+				subFolder.Tags["Id"] =  folderInfo.Id;
                 this.CreateTree(subFolder, listFile);
 				currentFolder.AddFolder(subFolder);
             }
@@ -198,8 +198,8 @@ namespace Nitro.Rom
         
 		private void CreateTablesRecursive(GameFolder currentFolder, ushort parentId, ref uint subtablesOffset)
         {
-			int folderId = (int.Parse(currentFolder.Tags["Id"]) > 0x0FFF) ?
-			                int.Parse(currentFolder.Tags["Id"]) & 0x0FFF : 0;
+			int folderId = ((ushort)currentFolder.Tags["Id"] > 0x0FFF) ?
+			                (ushort)currentFolder.Tags["Id"] & 0x0FFF : 0;
             
 			this.tables[folderId] = new Fnt.FntTable(
 				subtablesOffset,
@@ -208,10 +208,10 @@ namespace Nitro.Rom
             
             // Set the info values
 			foreach (GameFile file in currentFolder.Files)
-				this.tables[folderId].AddFileInfo(file.Name, ushort.Parse(file.Tags["Id"]));
+				this.tables[folderId].AddFileInfo(file.Name, (ushort)file.Tags["Id"]);
             
 			foreach (GameFolder folder in currentFolder.Folders)
-				this.tables[folderId].AddFolderInfo(folder.Name, ushort.Parse(folder.Tags["Id"]));
+				this.tables[folderId].AddFolderInfo(folder.Name, (ushort)folder.Tags["Id"]);
             
             subtablesOffset += (uint)this.tables[folderId].GetInfoSize();
             

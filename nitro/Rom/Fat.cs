@@ -73,7 +73,7 @@ namespace Nitro.Rom
 					fileList.Add(f as GameFile);
 
 				// ... and sort them by Id
-				fileList.OrderBy(f => int.Parse(f.Tags["Id"]));
+				fileList.OrderBy(f => (ushort)f.Tags["Id"]);
 				this.files = fileList.ToArray();
 			}
 
@@ -141,7 +141,7 @@ namespace Nitro.Rom
 				this.files[i] = new GameFile(
 					string.Empty,	// Name will be added later in FNT
 					new DataStream(str, startOffset, endOffset - startOffset));
-				this.files[i].Tags["Id"] = i.ToString();
+				this.files[i].Tags["Id"] = i;
             }
             
 			if (this.files.Length > 0) {

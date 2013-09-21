@@ -34,7 +34,7 @@ namespace Nitro.Rom
 			: base(string.Empty, baseFile.Stream)
         {
 			this.Tags["Id"] = baseFile.Tags["Id"];
-			this.Name = "Overlay" + (isArm9 ? "9" : "7") + "_" + this.Tags["Id"] + ".bin";
+			this.Name = "Overlay" + (isArm9 ? "9" : "7") + "_" + this.Tags["Id"].ToString() + ".bin";
         }
                 
         #region Properties
@@ -167,7 +167,7 @@ namespace Nitro.Rom
 			dw.Write(this.BssSize);
 			dw.Write(this.StaticInitStart);
 			dw.Write(this.StaticInitEnd);
-			dw.Write(uint.Parse(this.Tags["Id"]));
+			dw.Write((uint)this.Tags["Id"]);
             dw.Write(encodingInfo);
         }
     }

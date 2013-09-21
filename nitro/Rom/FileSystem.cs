@@ -22,6 +22,7 @@
 namespace Nitro.Rom
 {
     using System;
+	using System.Collections.Generic;
 	using Libgame;
 	using Libgame.IO;
 
@@ -107,6 +108,15 @@ namespace Nitro.Rom
 
 			this.sysFolder.AddFile(ArmFile.FromStream(str, this.header, false));
 			this.sysFolder.AddFolder(OverlayFolder.FromTable(str, this.header, false, fat.GetFiles()));
+
+			// For each file and folder in the game, assign common tags
+			Dictionary<string, object> tags = new Dictionary<string, object> {
+				{ "Device", "NDS" },
+				{ "MakerCode", this.header.MakerCode },
+				{ "GameCode", this.header.GameCode }
+			};
+			this.root.AssignTagsRecursive(tags);
+			this.sysFolder.AssignTagsRecursive(tags);
 		}
 	
         /// <summary>
