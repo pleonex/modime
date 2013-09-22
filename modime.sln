@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nitro", "nitro\nitro.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ninokuni", "ninokuni\ninokuni.csproj", "{9E0E8ADA-9A95-4B96-AA16-62ABC7DBA5C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "common", "common\common.csproj", "{A9B92C00-1B55-46BB-AE26-787C0963CD62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -31,6 +33,10 @@ Global
 		{9E0E8ADA-9A95-4B96-AA16-62ABC7DBA5C7}.Debug|x86.Build.0 = Debug|Any CPU
 		{9E0E8ADA-9A95-4B96-AA16-62ABC7DBA5C7}.Release|x86.ActiveCfg = Release|Any CPU
 		{9E0E8ADA-9A95-4B96-AA16-62ABC7DBA5C7}.Release|x86.Build.0 = Release|Any CPU
+		{A9B92C00-1B55-46BB-AE26-787C0963CD62}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A9B92C00-1B55-46BB-AE26-787C0963CD62}.Debug|x86.Build.0 = Debug|Any CPU
+		{A9B92C00-1B55-46BB-AE26-787C0963CD62}.Release|x86.ActiveCfg = Release|Any CPU
+		{A9B92C00-1B55-46BB-AE26-787C0963CD62}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = modime\modime.csproj
