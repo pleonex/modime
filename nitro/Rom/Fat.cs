@@ -69,7 +69,7 @@ namespace Nitro.Rom
 				// Get a list with all files...
 				GameFolder root = parameters[0] as GameFolder;
 				List<GameFile> fileList = new List<GameFile>();
-				foreach (FileContainer f in root.GetFilesRecursive())
+				foreach (FileContainer f in root.GetFilesRecursive(false))
 					fileList.Add(f as GameFile);
 
 				// ... and sort them by Id
