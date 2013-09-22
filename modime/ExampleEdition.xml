@@ -1,10 +1,44 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <GameChanges>
-	<GameCode>B2KJ</GameCode>
+	<RelativePaths>
+		<Path>
+			<Variable>DropboxPath</Variable>
+			<Location>C:\Users\Benito\Documents\My Dropbox</Location>
+		</Path>
+		<Path>
+			<Variable>NinokuniPath</Variable>
+			<Location>{$DropboxPath}\Ninokuni español</Location>
+		</Path>
+	</RelativePaths>
 	<Files>
 		<File>
 			<Path>/data/UI/Common/title_logo.n2d/title_logo_6.nscr</Path>
 			<Import>{$NinokuniPath}\Imágenes\Originales definitivas\UI\Common\title_logo_6.nscrm.png</Import>
 		</File>
 	</Files>
+	<SpecialChars>
+		<Ellipsis>…</Ellipsis>
+		<QuoteOpen>“</QuoteOpen>
+		<QuoteClose>”</QuoteClose>
+	</SpecialChars>
+	<CharTables>
+		<Table name="replace">
+			<Char original="Á" new="Ａ"/>
+			<Char original="É" new="Ｅ"/>
+			<Char original="Í" new="Ｉ"/>
+			<Char original="Ó" new="Ｏ"/>
+			<Char original="Ú" new="Ｕ"/>
+			<Char original="á" new="ａ"/>
+			<Char original="é" new="ｅ"/>
+			<Char original="í" new="ｉ"/>
+			<Char original="ó" new="ｏ"/>
+			<Char original="ú" new="ｕ"/>
+			<Char original="¿" new="？"/>
+			<Char original="¡" new="！"/>
+			<Char original="ñ" new="ｎ"/>
+			<Char original="Ñ" new="Ｎ"/>
+			<Char original="ü" new="∂"/>
+			<Char original="Ü" new="∇"/>
+		</Table>
+	</CharTables>
 </GameChanges>

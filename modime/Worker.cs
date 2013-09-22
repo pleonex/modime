@@ -30,22 +30,24 @@ namespace Modime
 {
 	public class Worker
 	{
-		private XDocument game;
 		private XDocument edit;
-		private FileContainer  root;
-
+		private FileManager fileManager;
+		private Configuration config;
 		private List<string> updateQueue;
 
-		public Worker(XDocument gameXml, XDocument editXml, FileContainer root)
+		public Worker(XDocument xmlGame, XDocument xmlEdit, FileContainer root)
 		{
-			this.game = gameXml;
-			this.edit = editXml;
-			this.root = root;
+			Configuration.Initialize(xmlEdit);
+			this.config = Configuration.GetInstance();
+			FileManager.Initialize(root, xmlGame);
+			this.fileManager = FileManager.GetInstance();
+
+			this.edit = xmlEdit;
 			this.updateQueue = new List<string>();
 		}
 
-		public Worker(string gameXml, string editXml, FileContainer root)
-			: this(XDocument.Load(gameXml), XDocument.Load(editXml), root)
+		public Worker(string xmlGame, string xmlEdit, FileContainer root)
+			: this(XDocument.Load(xmlGame), XDocument.Load(xmlEdit), root)
 		{
 		}
 
@@ -55,9 +57,11 @@ namespace Modime
 
 			foreach (XElement fileEdit in files.Elements("File")) {
 				string path = fileEdit.Element("Path").Value;
-				string[] import = fileEdit.Elements("Import").Select(f => f.Value).ToArray();
+				string[] import = fileEdit.Elements("Import").
+				                  Select(f => this.config.ResolvePath(f.Value)).
+				                  ToArray();
 
-				GameFile file = this.RescueFile(path);
+				GameFile file = fileManager.RescueFile(path);
 				file.Format.Read();
 				file.Format.Import(import);
 				this.UpdateQueue(file);
@@ -67,7 +71,7 @@ namespace Modime
 		public void Write(string outputPath)
 		{
 			foreach (string filePath in this.updateQueue) {
-				GameFile file = this.root.SearchFile(filePath) as GameFile;
+				GameFile file = this.fileManager.Root.SearchFile(filePath) as GameFile;
 				if (file == null)
 					throw new Exception("File not found.");
 
@@ -75,112 +79,6 @@ namespace Modime
 			}
 
 			this.updateQueue.Clear();
-		}
-
-		public GameFile RescueFile(string gameFilePath)
-		{
-			XElement fileInfo = this.GetFileInfo(gameFilePath);
-			if (fileInfo != null)
-				return this.RescueFileInfo(gameFilePath, fileInfo);
-			else
-				return this.RescueFileNoInfo(gameFilePath);
-		}
-
-		private GameFile RescueFileNoInfo(string gameFilePath)
-		{
-			// 1.- Gets dependencies
-			// Since no info of dependencies is given, it will search them in two steps.
-			List<GameFile> depends = new List<GameFile>();
-
-			// 1.1.- Gets dependencies to get file data.
-			// It will be the previous GameFile that contains that file.
-			// Reading that file it's expected to get file data.
-			string prevContainer = gameFilePath.GetPreviousPath();
-			if (!string.IsNullOrEmpty(prevContainer)) {
-				GameFile dependency = this.RescueFile(prevContainer);
-				if (dependency != null) {
-					dependency.Format.Read();
-					depends.Add(dependency);
-				}
-			}
-
-			// We should be able to get the file now
-			FileContainer searchFile = root.SearchFile(gameFilePath);
-			GameFile file =  searchFile as GameFile;
-			// If we're trying to get the dependency and found a folder, pass its the "dependency"
-			if (file == null && searchFile is GameFolder) {
-				if (depends.Count > 0)
-					return depends[0];
-				else
-					return null;	// Folder without dependencies
-			} else if (file == null) {
-				throw new Exception("File not found.");
-			}
-
-			// 1.2.- Gets dependencies to be able to parse data.
-			// It will try to guess the file type using FormatValidation classes.
-			// If one of the matches, it will provide the dependencies.
-			foreach (TypeExtensionNode node in AddinManager.GetExtensionNodes(typeof(FormatValidation))) {
-				FormatValidation validation = (FormatValidation)node.CreateInstance();
-				validation.AutosetFormat = true;	// If it matches set format to the file.
-				validation.RunTests(file);
-
-				if (validation.Result) {
-					foreach (string dependencyPath in validation.Dependencies) {
-						GameFile dependency = this.RescueFile(dependencyPath);
-						depends.Add(dependency);
-						dependency.Format.Read();
-					}
-					break;
-				}
-			}
-
-			// Set dependencies
-			file.AddDependencies(depends.ToArray());
-
-			return file;
-		}
-
-		private GameFile RescueFileInfo(string gameFilePath, XElement fileInfo)
-		{
-			// Resolve dependencies
-			List<GameFile> depends = new List<GameFile>();
-
-			foreach (XElement xmlDepend in fileInfo.Elements("DependsOn")) {
-				GameFile dependency = this.RescueFile(xmlDepend.Value);
-				depends.Add(dependency);
-				dependency.Format.Read();
-			}
-
-			// Get file
-			FileContainer searchFile = root.SearchFile(gameFilePath);
-			GameFile file =  searchFile as GameFile;
-			if (file == null) {
-				throw new Exception("File not found.");
-			}
-
-			// Add dependencies
-			file.AddDependencies(depends.ToArray());
-
-			// Get type of dependency from info
-			Type t = Type.GetType(fileInfo.Element("Type").Value, true, false);
-
-			// Set type
-			if (file.Format == null)
-				file.SetFormat(t);
-
-			return file;
-		}
-
-		private XElement GetFileInfo(string path)
-		{
-			XElement files = game.Root.Element("Files");
-			foreach (XElement fileInfo in files.Elements("FileInfo")) {
-				if (fileInfo.Element("Path").Value == path)
-					return fileInfo;
-			}
-
-			return null;
 		}
 
 		private void UpdateQueue(GameFile file)

@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------
 using System;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 using Libgame;
 using Libgame.IO;
@@ -35,16 +36,17 @@ namespace Modime
 	{
 		public static void Main(string[] args)
 		{
+			// Initializations
 			AddinManager.Initialize();
 			AddinManager.Registry.Update();
 
 			// Tests
 			DateTime startTime = DateTime.Now;
-//			TestNdsRomRead(
-//				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
-//				"/main/Ninokuni [CLEAN].nds/ROM/data/UI/Menu/Skin/2/MainMenu/bg_a.n2d",
-//				"/lab/nds/projects/generic/bg_a.n2d");
-			TestNdsRomWrite("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
+			TestNdsRomRead(
+				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
+				"/main/Ninokuni [CLEAN].nds/ROM/data/UI/Menu/Skin/2/MainMenu/bg_a.n2d",
+				"/lab/nds/projects/generic/bg_a.n2d");
+//			TestNdsRomWrite("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
 			DateTime endTime = DateTime.Now;
 
 			// Soon...
@@ -66,23 +68,24 @@ namespace Modime
 		private static void TestNdsRomRead(string romPath, string filePath, string outPath)
 		{
 			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
-			Format romFormat = AddinManager.GetExtensionObjects<Format>()[0];
+			Format romFormat = AddinManager.GetExtensionObjects<Format>().
+			                   Where(f => f.GetType().Name == "Rom").
+			                   ToArray()[0];
 
 			GameFolder main = new GameFolder("main");
 			// TEMPFIX:
 			GameFolder superoot = new GameFolder("");
 			superoot.AddFolder(main);
 			// END TEMPFIX 
-			GameFile   rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
+			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
 			main.AddFile(rom);
 			romFormat.Initialize(rom);
 
 			XDocument xmlGame = new XDocument();
-			XDocument xmlEdit = new XDocument();
-			CreateEmptyXmls(xmlGame, xmlEdit);
-			Worker worker = new Worker(xmlGame, xmlEdit, main);
+			xmlGame.Add(new XElement("GameInfo", new XElement("Files")));
+			FileManager.Initialize(main, xmlGame);
 
-			GameFile file = worker.RescueFile(filePath);
+			GameFile file = FileManager.GetInstance().RescueFile(filePath);
 			if (file != null)
 				file.Stream.WriteTo(outPath);
 
