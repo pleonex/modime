@@ -58,7 +58,6 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <None Include="scheme.txt" />
     <None Include="ExampleGame.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
