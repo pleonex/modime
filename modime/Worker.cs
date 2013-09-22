@@ -94,7 +94,7 @@ namespace Modime
 			int depTopPosition = this.updateQueue.Count;
 			foreach (GameFile dependency in file.Dependencies) {
 				int depPosition = this.updateQueue.IndexOf(dependency.Path);
-				if (depPosition > depTopPosition)
+				if (depPosition < depTopPosition)
 					depTopPosition = depPosition;
 			}
 

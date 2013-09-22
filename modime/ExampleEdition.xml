@@ -3,17 +3,17 @@
 	<RelativePaths>
 		<Path>
 			<Variable>DropboxPath</Variable>
-			<Location>C:\Users\Benito\Documents\My Dropbox</Location>
+			<Location>/home/benito/Dropbox</Location>
 		</Path>
 		<Path>
 			<Variable>NinokuniPath</Variable>
-			<Location>{$DropboxPath}\Ninokuni español</Location>
+			<Location>{$DropboxPath}/Ninokuni español</Location>
 		</Path>
 	</RelativePaths>
 	<Files>
 		<File>
-			<Path>/data/UI/Common/title_logo.n2d/title_logo_6.nscr</Path>
-			<Import>{$NinokuniPath}\Imágenes\Originales definitivas\UI\Common\title_logo_6.nscrm.png</Import>
+			<Path>/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt</Path>
+			<Import>{$NinokuniPath}/Texto/Subs peli/s01.xml</Import>
 		</File>
 	</Files>
 	<SpecialChars>

@@ -50,9 +50,10 @@ namespace Modime
 //				"/main/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt",
 //				"/lab/nds/projects/generic/s01.txt");
 //			TestNdsRomWrite("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
-			TestNinokuniExportImport(
-				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
-				"/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt");
+//			TestNinokuniExportImport(
+//				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
+//				"/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt");
+			TestXmlImporting("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
 			DateTime endTime = DateTime.Now;
 
 			// Soon...
@@ -131,8 +132,7 @@ namespace Modime
 			// END TEMPFIX 
 			romFormat.Initialize(rom);
 
-			XDocument xmlGame = new XDocument();	// TODO: Replace with ExampleGame.xml
-			xmlGame.Add(new XElement("GameInfo", new XElement("Files")));
+			XDocument xmlGame = XDocument.Load(Path.Combine(AppPath, "ExampleGame.xml"));
 			XDocument xmlEdit = XDocument.Load(Path.Combine(AppPath, "ExampleEdition.xml"));
 			FileManager.Initialize(rom, xmlGame);
 			Configuration.Initialize(xmlEdit);
@@ -146,6 +146,24 @@ namespace Modime
 			romFormat.Write();
 			rom.Stream.WriteTo("/lab/nds/projects/generic/test.nds");
 			romStream.Dispose();
+		}
+
+		private static void TestXmlImporting(string romPath)
+		{
+			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
+			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream);
+			// TEMPFIX:
+			GameFolder superoot = new GameFolder("");
+			superoot.AddFile(rom);
+			// END TEMPFIX 
+
+			XDocument xmlGame = XDocument.Load(Path.Combine(AppPath, "ExampleGame.xml"));
+			XDocument xmlEdit = XDocument.Load(Path.Combine(AppPath, "ExampleEdition.xml"));
+			Worker worker = new Worker(xmlGame, xmlEdit, rom);
+
+			worker.Import();
+			worker.Write(null);
+			rom.Stream.WriteTo("/lab/nds/projects/generic/test.nds");
 		}
 	}
 }

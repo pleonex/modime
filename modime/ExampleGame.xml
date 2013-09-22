@@ -2,36 +2,13 @@
 <GameInfo>
 	<Files>
 		<FileInfo>
-			<Path>/</Path>
+			<Path>/Ninokuni [CLEAN].nds</Path>
 			<Type>Nitro.ROM</Type>
-			<DependsOn></DependsOn>
 		</FileInfo>
 		<FileInfo>
-			<Path>/data/UI/Common/title_logo.n2d/title_logo_6.nscr</Path>
-			<Type>NitroImages.NSCR</Type>
-			<DependsOn>/data/UI/Common/title_logo.n2d</DependsOn>
-			<DependsOn>/data/UI/Common/title_logo.n2d/title_logo_1.ncgr/title_logo_1.ncgr</DependsOn>
-		</FileInfo>
-		<FileInfo>
-			<Path>/data/UI/Common/title_logo.n2d/title_logo_1.ncgr/title_logo_1.ncgr</Path>
-			<Type>NitroImages.NCGR</Type>
-			<DependsOn>/data/UI/Common/title_logo.n2d/title_logo_1.ncgr</DependsOn>
-			<DependsOn>/data/UI/Common/title_logo.n2d/title_logo_0.nclr</DependsOn>
-		</FileInfo>
-		<FileInfo>
-			<Path>/data/UI/Common/title_logo.n2d/title_logo_1.ncgr</Path>
-			<Type>NitroEncoding.LZX</Type>
-			<DependsOn>/data/UI/Common/title_logo.n2d</DependsOn>
-		</FileInfo>
-		<FileInfo>
-			<Path>/data/UI/Common/title_logo.n2d/title_logo_0.nclr</Path>
-			<Type>NitroImages.NCLR</Type>
-			<DependsOn>/data/UI/Common/title_logo.n2d</DependsOn>
-		</FileInfo>
-		<FileInfo>
-			<Path>/data/UI/Common/title_logo.n2d</Path>
-			<Type>Ninokuni.N2D</Type>
-			<DependsOn>/</DependsOn>
+			<Path>/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt</Path>
+			<Type>Subtitle</Type>
+			<DependsOn>/Ninokuni [CLEAN].nds</DependsOn>
 		</FileInfo>
 	</Files>
 </GameInfo>
