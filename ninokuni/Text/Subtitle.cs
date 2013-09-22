@@ -32,13 +32,13 @@ namespace Ninokuni
 	[Extension]
 	public class Subtitle : XmlExportable
 	{
-		private const char Split = '\x3';
+		private const char Split = '\x3';		// Originaly: \xA. To enable double-line: \x3 (requires ASM hack)
 		private const char ExtraSplit = '\xD';
 
 		private List<SubtitleEntry> entries;
 
 		public override string FormatName {
-			get { return "Ninokuni.Subtitle"; }
+			get { return "Subtitle"; }
 		}
 
 		public override void Read(DataStream strIn)
@@ -52,23 +52,24 @@ namespace Ninokuni
 			for (int i = 0; i < lines.Length; i++) {
 				SubtitleEntry entry = new SubtitleEntry();
 
-				if (lines[i].Length == 0)
+				if (string.IsNullOrEmpty(lines[i]) || lines[i] == "\n")
 					continue;
 
-				if (lines[i][0] == '#') {
+				string line = lines[i].Substring(1);
+				if (line[0] == '#') {
 					entry.Type = SubtitleType.Comment;
-					// UNDONE: entry.Data = Table.JapToLatin(lines[i].Substring(1));
-				} else if (lines[i].StartsWith("/stream", StringComparison.Ordinal)) {
+					entry.Data = line.Substring(1).ApplyTable("replace", false);
+				} else if (line.StartsWith("/stream", StringComparison.Ordinal)) {
 					entry.Type = SubtitleType.Voice;
-					entry.Data = lines[i].Substring(8);
-				} else if (lines[i].StartsWith("/sync", StringComparison.Ordinal)) {
+					entry.Data = line.Substring(8);
+				} else if (line.StartsWith("/sync", StringComparison.Ordinal)) {
 					entry.Type = SubtitleType.SyncTime;
-					entry.Data = lines[i].Substring(6);
-				} else if (lines[i].StartsWith("/clear", StringComparison.Ordinal)) {
+					entry.Data = line.Substring(6);
+				} else if (line.StartsWith("/clear", StringComparison.Ordinal)) {
 					entry.Type = SubtitleType.Clear;
 				} else {
 					entry.Type = SubtitleType.Text;
-					// UNDONE: entry.Data = Table.JapToLatin(lines[i]);
+					entry.Data = line.ApplyTable("replace", false);
 				}
 
 				this.entries.Add(entry);
@@ -82,7 +83,7 @@ namespace Ninokuni
 			foreach (SubtitleEntry entry in this.entries) {
 				switch (entry.Type) {
 				case SubtitleType.Text:     
-					// UNDONE: text.Append(Table.LatinToJap(this.subs[i].Data));
+					text.Append(entry.Data.ApplyTable("replace", true));
 					break;
 
 				case SubtitleType.SyncTime:
@@ -94,7 +95,7 @@ namespace Ninokuni
 					break;
 
 				case SubtitleType.Comment:
-					// UNDONE: text.AppendFormat("#{0}", Table.LatinToJap(this.subs[i].Data));
+					text.AppendFormat("#{0}", entry.Data.ApplyTable("replace", true));
 					break;
 
 				case SubtitleType.Clear:
@@ -121,12 +122,12 @@ namespace Ninokuni
 				switch (el.Name.LocalName) {
 				case "Text":
 					entry.Type = SubtitleType.Text;
-					// UNDONE: entry.Data = TextFormatter.Reformat(el.Value, 2);
+					entry.Data = el.Value.FromXmlString(2, '<', '>');
 					break;
 
 				case "Comment":
 					entry.Type = SubtitleType.Comment;
-					// UNDONE: entry.Data = TextFormatter.Reformat(el.Value, 2);
+					entry.Data = el.Value.FromXmlString(2, '<', '>');
 					break;
 
 				case "Voice":
@@ -158,7 +159,7 @@ namespace Ninokuni
 
 				switch (entry.Type) {
 				case SubtitleType.Text:
-					// UNDONE: el = new XElement("Text", TextFormatter.Format(this.subs[i].Data, 2));
+					el = new XElement("Text", entry.Data.ToXmlString(2, '<', '>'));
 					break;
 
 				case SubtitleType.SyncTime:
@@ -172,7 +173,7 @@ namespace Ninokuni
 					break;
 
 				case SubtitleType.Comment: 
-					// UNDONE: el = new XElement("Comment", TextFormatter.Format(this.subs[i].Data, 2)); 
+					el = new XElement("Comment", entry.Data.ToXmlString(2, '<', '>')); 
 					break;
 
 				case SubtitleType.Clear:

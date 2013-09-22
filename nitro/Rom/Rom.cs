@@ -117,7 +117,7 @@ namespace Nitro.Rom
 
 			// Read file system: FAT and FNT
 			this.fileSys = new FileSystem();
-			this.fileSys.Initialize(this.File, this.header);
+			this.fileSys.Initialize(null, this.header);
 			this.fileSys.Read(str);
 
 			// Assign common tags (they will be assigned recursively)

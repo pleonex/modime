@@ -20,6 +20,8 @@
 		<Ellipsis>…</Ellipsis>
 		<QuoteOpen>“</QuoteOpen>
 		<QuoteClose>”</QuoteClose>
+		<FuriganaOpen>【</FuriganaOpen>
+		<FuriganaClose>】</FuriganaClose>
 	</SpecialChars>
 	<CharTables>
 		<Table name="replace">
