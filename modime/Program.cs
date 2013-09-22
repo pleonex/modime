@@ -69,10 +69,6 @@ namespace Modime
 			                   ToArray()[0];
 
 			GameFolder main = new GameFolder("main");
-			// TEMPFIX:
-			GameFolder superoot = new GameFolder("");
-			superoot.AddFolder(main);
-			// END TEMPFIX 
 			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
 			main.AddFile(rom);
 			romFormat.Initialize(rom);
@@ -126,10 +122,6 @@ namespace Modime
 			                        ToArray()[0];
 
 			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
-			// TEMPFIX:
-			GameFolder superoot = new GameFolder("");
-			superoot.AddFile(rom);
-			// END TEMPFIX 
 			romFormat.Initialize(rom);
 
 			XDocument xmlGame = XDocument.Load(Path.Combine(AppPath, "ExampleGame.xml"));
@@ -152,10 +144,6 @@ namespace Modime
 		{
 			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
 			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream);
-			// TEMPFIX:
-			GameFolder superoot = new GameFolder("");
-			superoot.AddFile(rom);
-			// END TEMPFIX 
 
 			XDocument xmlGame = XDocument.Load(Path.Combine(AppPath, "ExampleGame.xml"));
 			XDocument xmlEdit = XDocument.Load(Path.Combine(AppPath, "ExampleEdition.xml"));
