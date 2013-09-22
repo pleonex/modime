@@ -38,7 +38,7 @@ namespace Ninokuni
 		private List<SubtitleEntry> entries;
 
 		public override string FormatName {
-			get { return "Subtitle"; }
+			get { return "Ninokuni.Subtitle"; }
 		}
 
 		public override void Read(DataStream strIn)

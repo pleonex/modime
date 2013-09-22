@@ -7,7 +7,7 @@
 		</FileInfo>
 		<FileInfo>
 			<Path>/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt</Path>
-			<Type>Subtitle</Type>
+			<Type>Ninokuni.Subtitle</Type>
 			<DependsOn>/Ninokuni [CLEAN].nds</DependsOn>
 		</FileInfo>
 	</Files>
