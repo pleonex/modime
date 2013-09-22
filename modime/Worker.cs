@@ -68,8 +68,9 @@ namespace Modime
 			}
 		}
 
-		public void Write(string outputPath)
+		public void Write(params string[] outputPath)
 		{
+			// Write files data
 			foreach (string filePath in this.updateQueue) {
 				GameFile file = this.fileManager.Root.SearchFile(filePath) as GameFile;
 				if (file == null)
@@ -79,6 +80,23 @@ namespace Modime
 			}
 
 			this.updateQueue.Clear();
+
+			// Write to output files
+			if (fileManager.Root is GameFile) {
+				if (outputPath.Length != 1)
+					throw new ArgumentException("Only one file can be written");
+
+				((GameFile)fileManager.Root).Stream.WriteTo(outputPath[0]);
+			} else if (fileManager.Root is GameFolder) {
+				if (outputPath.Length != fileManager.Root.Folders.Count)
+					throw new ArgumentException("There are not enough output paths.");
+
+				for (int i = 0; i < fileManager.Root.Files.Count; i++) {
+					GameFile f = fileManager.Root.Files[i] as GameFile;
+					if (f != null)
+						f.Stream.WriteTo(outputPath[i]);
+				}
+			}
 		}
 
 		private void UpdateQueue(GameFile file)

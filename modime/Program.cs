@@ -159,11 +159,10 @@ namespace Modime
 
 			XDocument xmlGame = XDocument.Load(Path.Combine(AppPath, "ExampleGame.xml"));
 			XDocument xmlEdit = XDocument.Load(Path.Combine(AppPath, "ExampleEdition.xml"));
-			Worker worker = new Worker(xmlGame, xmlEdit, rom);
 
+			Worker worker = new Worker(xmlGame, xmlEdit, rom);
 			worker.Import();
-			worker.Write(null);
-			rom.Stream.WriteTo("/lab/nds/projects/generic/test.nds");
+			worker.Write("/lab/nds/projects/generic/test.nds");
 		}
 	}
 }
