@@ -20,13 +20,12 @@
 // <date>11/06/2013</date>
 //-----------------------------------------------------------------------
 using System;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Xml.Linq;
+using Mono.Addins;
 using Libgame;
 using Libgame.IO;
-using Mono.Addins;
 
 [assembly:AddinRoot("modime", "0.2")]
 [assembly:ImportAddinAssembly("libgame.dll")]
@@ -43,8 +42,19 @@ namespace Modime
 			AddinManager.Initialize();
 			AddinManager.Registry.Update();
 
+			// DEBUG
+			args = new string[] { 
+				"-i",
+				"ExampleGame.xml",
+				"Ninokuni español.xml",
+				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
+				"/lab/nds/projects/ninokuni/Alpha.nds"
+			 };
+
+			Stopwatch watch = new Stopwatch();
+			watch.Start();
+
 			// Tests
-			DateTime startTime = DateTime.Now;
 //			TestNdsRomRead(
 //				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
 //				"/main/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt",
@@ -53,104 +63,26 @@ namespace Modime
 //			TestNinokuniExportImport(
 //				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
 //				"/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt");
-			TestXmlImporting("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
-			DateTime endTime = DateTime.Now;
+//			TestXmlImporting("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
+//			return;
 
-			// Soon...
+			// Import. Single file as input
+			if (args.Length == 5 && args[0] == "-i") {
+				DataStream stream = new DataStream(args[3], FileMode.Open, FileAccess.Read);
+				GameFile mainFile = new GameFile(Path.GetFileName(args[3]), stream);
 
-			Console.WriteLine("Done! {0}", (endTime - startTime));
+				string xmlGame = Path.Combine(AppPath, args[1]);
+				string xmlEdit = Path.Combine(AppPath, args[2]);
+				Worker worker = new Worker(xmlGame, xmlEdit, mainFile);
+				worker.Import();
+				worker.Write(args[4]);
+			}
+
+			watch.Stop();
+			Console.WriteLine("Done! It tooks: {0}", watch.Elapsed);
+			//Console.Write("Press any key to quit . . .");
+			//Console.ReadKey(true);
 		}
 
-		private static void TestNdsRomRead(string romPath, string filePath, string outPath)
-		{
-			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
-			Format romFormat = AddinManager.GetExtensionObjects<Format>().
-			                   Where(f => f.GetType().Name == "Rom").
-			                   ToArray()[0];
-
-			GameFolder main = new GameFolder("main");
-			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
-			main.AddFile(rom);
-			romFormat.Initialize(rom);
-
-			XDocument xmlGame = new XDocument();	// TODO: Replace with ExampleGame.xml
-			xmlGame.Add(new XElement("GameInfo", new XElement("Files")));
-			FileManager.Initialize(main, xmlGame);
-
-			GameFile file = FileManager.GetInstance().RescueFile(filePath);
-			if (file != null)
-				file.Stream.WriteTo(outPath);
-
-			romStream.Dispose();
-		}
-
-		private static void TestNdsRomWrite(string romPath)
-		{
-			DataStream outStream = new DataStream(new MemoryStream(), 0, 0);
-			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
-			Format romFormat = AddinManager.GetExtensionObjects<Format>()[0];
-
-			GameFile rom = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
-			romFormat.Initialize(rom);
-
-			DateTime t1 = DateTime.Now;
-			romFormat.Read();
-			DateTime t2 = DateTime.Now;
-			romFormat.Write(outStream);
-			DateTime t3 = DateTime.Now;
-			outStream.WriteTo("/lab/nds/test.nds");
-			DateTime t4 = DateTime.Now;
-
-			outStream.Dispose();
-			romStream.Dispose();
-
-			// Display time result
-			Console.WriteLine("Time results:");
-			Console.WriteLine("\tRead                    -> {0}", t2 - t1);
-			Console.WriteLine("\tWrite into MemoryStream -> {0}", t3 - t2);
-			Console.WriteLine("\tWrite into FileStream   -> {0}", t4 - t3);
-		}
-
-		private static void TestNinokuniExportImport(string romPath, string filePath)
-		{
-			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
-			Format romFormat = AddinManager.GetExtensionObjects<Format>().
-			                   Where(f => f.GetType().Name == "Rom").
-			                   ToArray()[0];
-			Format subtitleFormat = AddinManager.GetExtensionObjects<Format>().
-			                        Where(f => f.GetType().Name == "Subtitle").
-			                        ToArray()[0];
-
-			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
-			romFormat.Initialize(rom);
-
-			XDocument xmlGame = XDocument.Load(Path.Combine(AppPath, "ExampleGame.xml"));
-			XDocument xmlEdit = XDocument.Load(Path.Combine(AppPath, "ExampleEdition.xml"));
-			FileManager.Initialize(rom, xmlGame);
-			Configuration.Initialize(xmlEdit);
-
-			GameFile file = FileManager.GetInstance().RescueFile(filePath);
-			subtitleFormat.Initialize(file);
-			file.Format.Read();
-			file.Format.Import("/home/benito/Dropbox/Ninokuni español/Texto/Subs peli/s01.xml");
-			file.Format.Write();
-
-			romFormat.Write();
-			rom.Stream.WriteTo("/lab/nds/projects/generic/test.nds");
-			romStream.Dispose();
-		}
-
-		private static void TestXmlImporting(string romPath)
-		{
-			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
-			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream);
-
-			XDocument xmlGame = XDocument.Load(Path.Combine(AppPath, "ExampleGame.xml"));
-			XDocument xmlEdit = XDocument.Load(Path.Combine(AppPath, "ExampleEdition.xml"));
-
-			Worker worker = new Worker(xmlGame, xmlEdit, rom);
-			worker.Import();
-			worker.Write("/lab/nds/projects/generic/test.nds");
-		}
 	}
 }
