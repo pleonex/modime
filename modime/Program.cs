@@ -45,7 +45,7 @@ namespace Modime
 			// DEBUG
 			args = new string[] { 
 				"-i",
-				"ExampleGame.xml",
+				"Ninokuni.xml",
 				"Ninokuni español.xml",
 				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
 				"/lab/nds/projects/ninokuni/Alpha.nds"

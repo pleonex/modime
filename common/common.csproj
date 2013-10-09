@@ -35,6 +35,8 @@
       <Private>False</Private>
       <Package>mono-addins</Package>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

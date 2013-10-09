@@ -21,6 +21,9 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Mono.Addins;
 using Libgame;
 using Libgame.IO;
@@ -48,39 +51,103 @@ namespace Common
 
 		public override void Import(params DataStream[] strIn)
 		{
-			this.data.Dispose();
-
-			// Call the program in the parameter using the data in strIn
 			Configuration config = Configuration.GetInstance();
-			string outputPath  = config.ResolvePath((string)parameters[0]);
-			string programPath = config.ResolvePath((string)parameters[1]);
-			string arguments   = (string)parameters[2];
+			XElement xmlImport = ((XElement)parameters[0]).Element("Import");
+
+			string arguments   = xmlImport.Element("Arguments").Value;
+			string programPath = config.ResolvePath(xmlImport.Element("Path").Value);
+			string copyTo      = config.ResolvePath(xmlImport.Element("CopyTo").Value);
+			string outputPath  = config.ResolvePath(xmlImport.Element("OutputFile").Value);
+			bool autoremove    = bool.Parse(xmlImport.Element("OutputFile").Attribute("autoremove").Value);
+
+			// Resolve variables
+			string[] tempFiles = new string[strIn.Length];
+			arguments  = this.ResolveVariables(arguments, tempFiles);
+			copyTo     = this.ResolveVariables(copyTo, tempFiles);
+			outputPath = this.ResolveVariables(outputPath, tempFiles);
+
+			// Copy the import file data to temp files
+			for (int i = 0; i < tempFiles.Length; i++)
+				if (!string.IsNullOrEmpty(tempFiles[i]))
+					strIn[i].WriteTo(tempFiles[i]);
 
 			// Write the data stream to a temp file
-			string tempFile = System.IO.Path.GetTempFileName();
-			strIn[0].WriteTo(tempFile);
+			if (!string.IsNullOrEmpty(copyTo))
+				this.data.WriteTo(copyTo);
 
 			// Call to the program
 			ProcessStartInfo startInfo = new ProcessStartInfo();
-			startInfo.Arguments = arguments;
-			startInfo.CreateNoWindow = true;
-			startInfo.FileName = programPath;
+			startInfo.FileName        = programPath;
+			startInfo.Arguments       = arguments;
 			startInfo.UseShellExecute = false;
+			startInfo.CreateNoWindow  = true;
 
 			Process program = new Process();
 			program.StartInfo = startInfo;
 			program.Start();
 			program.WaitForExit();
 
-			System.IO.File.Delete(tempFile);
-
 			// Read the data from the output file
+			if (this.data != null)
+				this.data.Dispose();
 			this.data = new DataStream(outputPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+
+			// Remove temp files
+			System.IO.File.Delete(copyTo);
+
+			for (int i = 0; i < tempFiles.Length; i++)
+				if (!string.IsNullOrEmpty(tempFiles[i]))
+					System.IO.File.Delete(tempFiles[i]);
+
+			if (autoremove && System.IO.File.Exists(outputPath))
+				System.IO.File.Delete(outputPath);
 		}
 
 		public override void Export(params DataStream[] strOut)
 		{
+			// TODO: Implement export function
 			this.data.WriteTo(strOut[0]);
+		}
+
+		private string ResolveVariables(string s, string[] tempFiles)
+		{
+			string pattern = @"\$([a-z]+)(\d+)(?::([a-z]+))?";
+			MatchCollection matches = Regex.Matches(s, pattern);
+			StringBuilder snew = new StringBuilder(s);
+
+
+			foreach (Match m in matches) {
+				// Get result and captures
+				string result = m.Value;
+				string variable = m.Groups[1].Value;
+				int num = int.Parse(m.Groups[2].Value);
+				string tile = (m.Groups.Count == 4) ? m.Groups[3].Value : string.Empty;
+
+				string replace = string.Empty;
+
+				if (variable == "import") {
+					if (string.IsNullOrEmpty(tempFiles[num]))
+						tempFiles[num] = System.IO.Path.GetTempFileName();
+
+					string path = tempFiles[num];
+					if (string.IsNullOrEmpty(tile))
+						replace = path;
+					else if (tile == "path")
+						replace = System.IO.Path.GetDirectoryName(path);
+					else if (tile == "name")
+						replace = System.IO.Path.GetFileName(path);
+				} else {
+					throw new FormatException("Unknown variable");
+				}
+
+				if (string.IsNullOrEmpty(replace))
+					throw new FormatException("Unknown tile");
+			
+				int index = snew.ToString().IndexOf(result);
+				snew.Replace(result, replace, index, m.Length);	// Replace only current match
+			}
+
+			return snew.ToString();
 		}
 	}
 }

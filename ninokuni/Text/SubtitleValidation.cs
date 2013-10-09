@@ -53,8 +53,10 @@ namespace Ninokuni
 			string pattern = @"^(?:s\d\dB?|Ev_(?:B|S\d)_\d\d)\.txt$";
 
 			if (Regex.IsMatch(filename, pattern, RegexOptions.IgnoreCase)) {
+				string filenameNoExt = filename.Remove(filename.IndexOf("."));
+
 				if (filepath.EndsWith("/data/movie/" + filename) ||
-					filepath.ToLower().EndsWith("/data/event/demo/" + filename.ToLower()))
+					filepath.ToLower().EndsWith("/data/event/demo/" + filenameNoExt.ToLower() + "/" + filename.ToLower()))
 					return ValidationResult.Sure;
 
 				return ValidationResult.ShouldBe;
