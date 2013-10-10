@@ -58,7 +58,8 @@ namespace Common
 			string programPath = config.ResolvePath(xmlImport.Element("Path").Value);
 			string copyTo      = config.ResolvePath(xmlImport.Element("CopyTo").Value);
 			string outputPath  = config.ResolvePath(xmlImport.Element("OutputFile").Value);
-			bool autoremove    = bool.Parse(xmlImport.Element("OutputFile").Attribute("autoremove").Value);
+			bool autoremoveOut = bool.Parse(xmlImport.Element("OutputFile").Attribute("autoremove").Value);
+			bool autoremoveCpy = bool.Parse(xmlImport.Element("CopyTo").Attribute("autoremove").Value);
 
 			// Resolve variables
 			string[] tempFiles = new string[strIn.Length];
@@ -93,20 +94,21 @@ namespace Common
 			this.data = new DataStream(outputPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 
 			// Remove temp files
-			System.IO.File.Delete(copyTo);
-
 			for (int i = 0; i < tempFiles.Length; i++)
 				if (!string.IsNullOrEmpty(tempFiles[i]))
 					System.IO.File.Delete(tempFiles[i]);
 
-			if (autoremove && System.IO.File.Exists(outputPath))
+			if (autoremoveCpy && System.IO.File.Exists(copyTo))
+				System.IO.File.Delete(copyTo);
+
+			if (autoremoveOut && System.IO.File.Exists(outputPath))
 				System.IO.File.Delete(outputPath);
 		}
 
 		public override void Export(params DataStream[] strOut)
 		{
-			// TODO: Implement export function
-			this.data.WriteTo(strOut[0]);
+			// TODO: ExternalProgram.Export
+			throw new NotImplementedException();
 		}
 
 		private string ResolveVariables(string s, string[] tempFiles)
