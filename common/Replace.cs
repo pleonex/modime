@@ -56,6 +56,16 @@ namespace Common
 		{
 			this.data.WriteTo(strOut[0]);
 		}
+
+		protected override void Dispose(bool freeManagedResourcesAlso)
+		{
+			if (freeManagedResourcesAlso) {
+				if (this.data != null) {
+					this.data.Dispose();
+					this.data = null;
+				}
+			}
+		}
 	}
 }
 

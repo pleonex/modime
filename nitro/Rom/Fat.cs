@@ -162,5 +162,10 @@ namespace Nitro.Rom
 		{
 			throw new NotImplementedException();
 		}
+
+		protected override void Dispose(bool freeManagedResourcesAlso)
+		{
+			// Nothing to do here... No "disposing" resources here
+		}
     }
 }

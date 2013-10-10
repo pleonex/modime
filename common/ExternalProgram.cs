@@ -111,6 +111,16 @@ namespace Common
 			throw new NotImplementedException();
 		}
 
+		protected override void Dispose(bool freeManagedResourcesAlso)
+		{
+			if (freeManagedResourcesAlso) {
+				if (this.data != null) {
+					this.data.Dispose();
+					this.data = null;
+				}
+			}
+		}
+
 		private string ResolveVariables(string s, string[] tempFiles)
 		{
 			string pattern = @"\$([a-z]+)(\d+)(?::([a-z]+))?";

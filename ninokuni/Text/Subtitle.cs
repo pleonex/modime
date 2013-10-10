@@ -185,6 +185,16 @@ namespace Ninokuni
 			}
 		}
 
+		protected override void Dispose(bool freeManagedResourcesAlso)
+		{
+			if (freeManagedResourcesAlso) {
+				if (this.entries != null) {
+					this.entries.Clear();
+					this.entries = null;
+				}
+			}
+		}
+
 		private enum SubtitleType
 		{
 			Text,

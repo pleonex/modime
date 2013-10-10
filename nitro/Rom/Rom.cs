@@ -140,5 +140,12 @@ namespace Nitro.Rom
 		{
 			throw new NotImplementedException();
 		}
+
+		protected override void Dispose(bool freeManagedResourcesAlso)
+		{
+			header.Dispose();
+			banner.Dispose();
+			fileSys.Dispose();
+		}
     }
 }

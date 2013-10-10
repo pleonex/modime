@@ -33,7 +33,6 @@ namespace Common
 	public class MultiType : Format
 	{
 		private DataStream data;
-		private List<Format> types;
 
 		public override string FormatName {
 			get { return "Common.MultiType"; }
@@ -53,7 +52,6 @@ namespace Common
 		{
 			XElement xmlImport = ((XElement)this.parameters[0]).Element("Import");
 
-			this.types = new List<Format>();
 			foreach (XElement xmlType in xmlImport.Elements("Type")) {
 				string name         = xmlType.Element("Name").Value;
 				XElement parameters = xmlType.Element("Parameters");
@@ -63,7 +61,6 @@ namespace Common
 
 				Format format = FileManager.GetInstance().GetFormat(name);
 				format.Initialize(this.File, parameters);
-				this.types.Add(format);
 
 				format.Read(this.data);
 				format.Import(strIn.Where( (str, idx) => streams.Contains(idx) ).ToArray());
@@ -71,13 +68,26 @@ namespace Common
 				this.data.Dispose();
 				this.data = new DataStream(new System.IO.MemoryStream(), 0, 0);
 				format.Write(this.data);
+				format.Dispose();
 			}
+
+			this.File.Format = this;	// That changes when calling Initalize in subformats
 		}
 
 		public override void Export(params DataStream[] strOut)
 		{
 			// TODO: MultyType.Export
 			throw new NotImplementedException();
+		}
+
+		protected override void Dispose(bool freeManagedResourcesAlso)
+		{
+			if (freeManagedResourcesAlso) {
+				if (this.data != null) {
+					this.data.Dispose();
+					this.data = null;
+				}
+			}
 		}
 	}
 }
