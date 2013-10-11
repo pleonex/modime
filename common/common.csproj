@@ -43,6 +43,7 @@
     <Compile Include="Replace.cs" />
     <Compile Include="ExternalProgram.cs" />
     <Compile Include="MultiType.cs" />
+    <Compile Include="BinaryText.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
