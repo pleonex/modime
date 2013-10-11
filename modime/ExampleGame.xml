@@ -9,7 +9,10 @@
 			<Path>/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt</Path>
 			<Type>Ninokuni.Subtitle</Type>
 			<DependsOn>/Ninokuni [CLEAN].nds</DependsOn>
-			<!-- <Argument>Implemented!</Argument> -->
+			<Parameters>
+				<Path>~/subtitle.xml</Path>
+				<ImportOption>something here</ImportOption>
+			</Parameters>
 		</FileInfo>
 	</Files>
 </GameInfo>

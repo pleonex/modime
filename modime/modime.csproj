@@ -59,12 +59,8 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <None Include="ExampleGame.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ExampleEdition.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="ExampleGame.xml" />
+    <None Include="ExampleEdition.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libgame\libgame.csproj">

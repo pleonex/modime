@@ -86,6 +86,8 @@ namespace Modime
 				if (outputPath.Length != 1)
 					throw new ArgumentException("Only one file can be written");
 
+				if (System.IO.File.Exists(outputPath[0]))
+					System.IO.File.Delete(outputPath[0]);
 				((GameFile)fileManager.Root).Stream.WriteTo(outputPath[0]);
 			} else if (fileManager.Root is GameFolder) {
 				if (outputPath.Length != fileManager.Root.Folders.Count)
@@ -93,8 +95,11 @@ namespace Modime
 
 				for (int i = 0; i < fileManager.Root.Files.Count; i++) {
 					GameFile f = fileManager.Root.Files[i] as GameFile;
-					if (f != null)
+					if (f != null) {
+						if (System.IO.File.Exists(outputPath[i]))
+							System.IO.File.Delete(outputPath[i]);
 						f.Stream.WriteTo(outputPath[i]);
+					}
 				}
 			}
 		}
