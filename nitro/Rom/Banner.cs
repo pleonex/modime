@@ -32,8 +32,9 @@ namespace Nitro.Rom
 	public sealed class Banner : Format
 	{
 		private ushort version; 		// Always 1
-		private ushort crc16; 			// CRC-16 of structure, not including first 32 bytes
-		private byte[] reserved; 		// 28 bytes
+		private ushort crc16; 			// CRC-16 of structure, from 0x20 to 0x83
+		private ushort crc16v2;			// CRC-16 of structure, from 0x20 to 0x93, version 2 only
+		private byte[] reserved; 		// 26 bytes
 		private byte[] tileData; 		// 512 bytes
 		private byte[] palette; 		// 32 bytes
 		private string japaneseTitle; 	// 256 bytes
@@ -61,7 +62,12 @@ namespace Nitro.Rom
 			this.Write(data);
 
 			data.Seek(0x20, SeekMode.Origin);
-			this.crc16 = Libgame.Utils.Checksums.Crc16(data, 0x64);
+			this.crc16 = Libgame.Utils.Checksums.Crc16(data, 0x0820);
+
+			if (this.version == 2) {
+				data.Seek(0x20, SeekMode.Origin);
+				this.crc16v2 = Libgame.Utils.Checksums.Crc16(data, 0x0920);
+			}
 
 			data.Dispose();
 		}
@@ -76,6 +82,7 @@ namespace Nitro.Rom
             
 			dw.Write(this.version);
 			dw.Write(this.crc16);
+			dw.Write(this.crc16v2);
 			dw.Write(this.reserved);
 			dw.Write(this.tileData);
 			dw.Write(this.palette);
@@ -99,17 +106,18 @@ namespace Nitro.Rom
 		{
 			DataReader dr = new DataReader(str, EndiannessMode.LittleEndian, Encoding.Unicode);
             
-			this.version = dr.ReadUInt16();
-			this.crc16 = dr.ReadUInt16();
-			this.reserved = dr.ReadBytes(0x1C);
+			this.version  = dr.ReadUInt16();
+			this.crc16    = dr.ReadUInt16();
+			this.crc16v2  = dr.ReadUInt16();
+			this.reserved = dr.ReadBytes(0x1A);
 			this.tileData = dr.ReadBytes(0x200);
-			this.palette = dr.ReadBytes(0x20);
+			this.palette  = dr.ReadBytes(0x20);
 			this.japaneseTitle = dr.ReadString(0x100);
-			this.englishTitle = dr.ReadString(0x100);
-			this.frenchTitle = dr.ReadString(0x100);
-			this.germanTitle = dr.ReadString(0x100);
-			this.italianTitle = dr.ReadString(0x100);
-			this.spanishTitle = dr.ReadString(0x100);
+			this.englishTitle  = dr.ReadString(0x100);
+			this.frenchTitle   = dr.ReadString(0x100);
+			this.germanTitle   = dr.ReadString(0x100);
+			this.italianTitle  = dr.ReadString(0x100);
+			this.spanishTitle  = dr.ReadString(0x100);
 		}
 
 		// What about exporting the Icon + some kind of XML file
