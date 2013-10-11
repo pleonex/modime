@@ -54,13 +54,24 @@ namespace Nitro.Rom
 			get { return 0x840 + 0x1C0; }
 		}
 
+		public void UpdateCrc()
+		{
+			// Write temporaly the banner
+			DataStream data = new DataStream(new System.IO.MemoryStream(), 0, 0);
+			this.Write(data);
+
+			data.Seek(0x20, SeekMode.Origin);
+			this.crc16 = Libgame.Utils.Checksums.Crc16(data, 0x64);
+
+			data.Dispose();
+		}
+
 		/// <summary>
 		/// Write the banner to a stream.
 		/// </summary>
 		/// <param name="str">Stream to write to.</param>
 		public override void Write(DataStream str)
 		{
-			// FIXME: Recalculate CRC
 			DataWriter dw = new DataWriter(str, EndiannessMode.LittleEndian, Encoding.Unicode);
             
 			dw.Write(this.version);

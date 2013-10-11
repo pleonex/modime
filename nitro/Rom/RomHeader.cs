@@ -327,6 +327,23 @@ namespace Nitro.Rom
 			get { return "Nitro.Header"; }
 		}
 
+		public void UpdateCrc()
+		{
+			// Write temporaly the header
+			DataStream data = new DataStream(new System.IO.MemoryStream(), 0, 0);
+			this.Write(data);
+
+			data.Seek(0, SeekMode.Origin);
+			this.HeaderCRC16 = Libgame.Utils.Checksums.Crc16(data, 0x15E);
+			this.HeaderCRC   = true;
+
+			data.Dispose();
+
+			// The checksum of the logo won't be calculated again
+			// since it must have always the original value if we
+			// want to boot the game correctly (0xCF56)
+		}
+
         /// <summary>
         /// Write the header of a NDS game ROM.
         /// </summary>

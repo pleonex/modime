@@ -85,9 +85,12 @@ namespace Nitro.Rom
 			DataStream bannerStr  = new DataStream(new System.IO.MemoryStream(), 0, 0);
 
 			this.fileSys.Write(fileSysStr);
+
+			this.banner.UpdateCrc();
 			this.banner.Write(bannerStr);
 
 			this.header.BannerOffset = (uint)(this.header.HeaderSize + fileSysStr.Length);
+			this.header.UpdateCrc();
 			this.header.Write(headerStr);
 
 			headerStr.WriteTo(strOut);
