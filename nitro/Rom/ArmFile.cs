@@ -146,6 +146,19 @@ namespace Nitro.Rom
             // Write the file
 			this.Stream.WriteTo(str);
             
+			if (this.IsArm9) {
+				// Update encoded size if it was set
+				uint encodeSize = this.SearchEncodedSizeAddress();
+				if (encodeSize != 0 && encodeSize != 1) {
+					this.Stream.Seek(encodeSize, SeekMode.Origin);
+					if (new DataReader(this.Stream).ReadUInt32() != 0x00) {
+						str.Seek(encodeSize, SeekMode.Origin);
+						new DataWriter(str).Write((uint)(this.Length + this.RamAddress));
+						str.Seek(0, SeekMode.End);
+					}
+				}
+			}
+
             // Write the unknown tail
             if (this.unknownTail != null)
                 str.Write(this.unknownTail, 0, this.unknownTail.Length);
@@ -159,5 +172,134 @@ namespace Nitro.Rom
         {
             return this.unknownTail;
         }
+
+		#region ARM9 Encode Size Finder
+
+		private const int SecureAreaSize = 0x4000;
+
+		// First ARM instructions of the BLZ decoder
+		private static readonly uint[] DecoderOps = new uint[]  
+		{
+			0xE9100006, 0xE0802002, 0xE0403C21, 0xE3C114FF,
+			0xE0401001, 0xE1A04002
+		};
+
+		// Number of bytes from the header to the first instruction in DecoderOps
+		private const int DecoderShift = 0x0C;
+
+		/// <summary>
+		/// Searchs the encoded size address.
+		/// </summary>
+		/// <returns>The encoded size address. 0 if not found. 1 if game is homebrew.</returns>
+		private uint SearchEncodedSizeAddress()
+		{
+			/*
+     	 	 * Steps to find the ARM9 size address that we need to change
+     	 	 * in order to fix the BLZ decoded error.
+     	 	 * 
+     	 	 * 0º Check the game is not homebrew.
+     	 	 * 1º Get ARM9 entry address.
+     	 	 * 2º From that point and while we're in the secure zone,
+     	 	 *    search the decode_BLZ routine.
+     	 	 * 3º Search previous BL (jump) instruction that call the decoder.
+     	 	 * 4º Search instructions before it that loads R0 (parameter of decode_BLZ).
+     	 	 */
+
+			DataReader reader = new DataReader(this.Stream);
+
+			// 0º
+			if (this.Tags.ContainsKey("_GameCode_") && (string)this.Tags["_GameCode_"] == "####")
+				return 0x01;
+
+			// 1º
+			uint entryAddress = this.EntryAddress - this.RamAddress;
+
+			// 2º
+			this.Stream.Seek(entryAddress, SeekMode.Origin);
+			uint decoderAddress = SearchDecoder();
+			if (decoderAddress == 0x00) {
+				Console.WriteLine("INVALID decoder address.");
+				return 0x00;
+			}
+
+			// 3º & 4º
+			this.Stream.Seek(entryAddress, SeekMode.Origin);
+			uint baseOffset = SearchBaseOffset(decoderAddress);
+			if (baseOffset == 0x00) {
+				Console.WriteLine("INVALID base offset.");
+				return 0x00;
+			}
+
+			// Get relative address (not RAM address)
+			this.Stream.Seek(baseOffset, SeekMode.Origin);
+			uint sizeAddress = reader.ReadUInt32() + 0x14;	// Size is at 0x14 from that address
+			sizeAddress -= this.RamAddress;
+
+			return sizeAddress;
+		}
+
+		private uint SearchDecoder()
+		{
+			DataReader reader = new DataReader(this.Stream);
+			long startPosition = this.Stream.Position;
+
+			uint decoderAddress = 0x00;
+			while (this.Stream.Position - startPosition < SecureAreaSize && decoderAddress == 0x00)
+			{
+				long loopPosition = this.Stream.RelativePosition;
+
+				// Compare instructions to see if it's the routing we want
+				bool found = true;
+				for (int i = 0; i < DecoderOps.Length && found; i++) {
+					if (reader.ReadUInt32() != DecoderOps[i]) {
+							found = false;
+					}
+				}
+
+				if (found)
+					decoderAddress = (uint)loopPosition - DecoderShift;		// Get start of routine
+				else
+					this.Stream.Seek(loopPosition + 4, SeekMode.Origin);	// Go to next instruction
+			}
+
+			return decoderAddress;
+		}
+
+		private uint SearchBaseOffset(uint decoderAddress)
+		{
+			DataReader reader = new DataReader(this.Stream);
+			uint instr;
+
+			// Search the instruction: BL DecoderAddress
+			// Where DecoderAddress=(PC+8+nn*4)
+			bool found = false;
+			while (this.Stream.RelativePosition < decoderAddress && !found)
+			{
+				instr = reader.ReadUInt32();
+				if ((instr & 0xFF000000) == 0xEB000000) {
+					uint shift = instr & 0x00FFFFFF;
+					shift = 4 + shift * 4;
+
+					// Check if that jump goes to the correct routine
+					if (this.Stream.RelativePosition + shift == decoderAddress)
+						found = true;
+				}
+			}
+
+			// Search for the Load instruction, btw LDR R1=[PC+ZZ].
+			// Usually two instruction before.
+			this.Stream.Seek(-0x0C, SeekMode.Current);
+			uint baseOffset = 0x00;
+			instr = reader.ReadUInt32();
+			if ((instr & 0xFFFF0000) == 0xE59F0000)
+				baseOffset = (uint)this.Stream.RelativePosition + (instr & 0xFFF) + 4;
+
+			// If not found... Should we continue looking above instructions?
+			// I run a test with > 500 games and at the moment it is always there
+
+			return baseOffset;
+		}
+		
+		#endregion
     }
 }
