@@ -148,9 +148,11 @@ namespace Nitro.Rom
 
 		protected override void Dispose(bool freeManagedResourcesAlso)
 		{
-			header.Dispose();
-			banner.Dispose();
-			fileSys.Dispose();
+			if (freeManagedResourcesAlso) {
+				header.Dispose();
+				banner.Dispose();
+				fileSys.Dispose();
+			}
 		}
     }
 }

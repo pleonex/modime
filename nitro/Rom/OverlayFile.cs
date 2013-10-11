@@ -158,6 +158,7 @@ namespace Nitro.Rom
         {
 			DataWriter dw = new DataWriter(str);
             
+			this.EncodedSize = (uint)this.Length;
 			uint encodingInfo = this.EncodedSize;
 			encodingInfo += (uint)((this.IsEncoded ? 1 : 0) << 24);
 
