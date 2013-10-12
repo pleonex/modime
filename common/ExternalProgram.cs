@@ -63,9 +63,11 @@ namespace Common
 
 			// Resolve variables
 			string[] tempFiles = new string[strIn.Length];
-			arguments  = this.ResolveVariables(arguments, tempFiles);
-			copyTo     = this.ResolveVariables(copyTo, tempFiles);
-			outputPath = this.ResolveVariables(outputPath, tempFiles);
+			arguments = this.ResolveVariables(arguments, tempFiles);
+			if (copyTo != "$stdIn")
+				copyTo = this.ResolveVariables(copyTo, tempFiles);
+			if (outputPath != "$stdOut")
+				outputPath = this.ResolveVariables(outputPath, tempFiles);
 
 			// Copy the import file data to temp files
 			for (int i = 0; i < tempFiles.Length; i++)
@@ -73,7 +75,7 @@ namespace Common
 					strIn[i].WriteTo(tempFiles[i]);
 
 			// Write the data stream to a temp file
-			if (!string.IsNullOrEmpty(copyTo))
+			if (copyTo != "$stdIn" && !string.IsNullOrEmpty(copyTo))
 				this.data.WriteTo(copyTo);
 
 			// Call to the program
@@ -82,16 +84,35 @@ namespace Common
 			startInfo.Arguments       = arguments;
 			startInfo.UseShellExecute = false;
 			startInfo.CreateNoWindow  = true;
+			startInfo.ErrorDialog     = false;
+			startInfo.RedirectStandardInput  = (copyTo == "$stdIn") ? true : false;
+			startInfo.RedirectStandardOutput = (outputPath == "$stdOut") ? true : false;
 
 			Process program = new Process();
 			program.StartInfo = startInfo;
 			program.Start();
-			program.WaitForExit();
 
-			// Read the data from the output file
+			if (copyTo == "$stdIn") {
+				this.data.BaseStream.Seek(this.data.Offset, System.IO.SeekOrigin.Begin);
+				this.data.BaseStream.CopyTo(program.StandardInput.BaseStream);
+				program.StandardInput.Close();
+			}
+
 			if (this.data != null)
 				this.data.Dispose();
-			this.data = new DataStream(outputPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+
+			if (outputPath == "$stdOut") {
+				System.IO.MemoryStream ms = new System.IO.MemoryStream();
+				program.StandardOutput.BaseStream.CopyTo(ms);
+				this.data = new DataStream(ms, 0, ms.Length);
+			}
+
+			program.WaitForExit();
+			program.Close();
+
+			// Read the data from the output file
+			if (outputPath != "$stdOut")
+				this.data = new DataStream(outputPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
 
 			// Remove temp files
 			for (int i = 0; i < tempFiles.Length; i++)
