@@ -79,7 +79,7 @@ namespace Modime
 			}
 
 			watch.Stop();
-			Console.WriteLine("Done! It tooks: {0}", watch.Elapsed);
+			Console.WriteLine("Done! It took: {0}", watch.Elapsed);
 			//Console.Write("Press any key to quit . . .");
 			//Console.ReadKey(true);
 		}
