@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// <copyright file="Script.cs" company="none">
+// <copyright file="BattleHelp.cs" company="none">
 // Copyright (C) 2013
 //
 //   This program is free software: you can redistribute it and/or modify
@@ -20,72 +20,70 @@
 // <date>12/10/2013</date>
 //-----------------------------------------------------------------------
 using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Mono.Addins;
 using Libgame;
 using Libgame.IO;
 
-namespace Ninokuni.Script
+namespace Ninokuni
 {
 	[Extension]
-	/// <summary>
-	/// Proxy class. Until the Spanish translation is finished
-	/// the code of the script editor won't be released
-	/// so I'm using this class to connect with the script editor
-	/// </summary>
-	public class Script : Format
+	public class BattleHelp : XmlExportable
 	{
-		private NinoScritor.Script script;
-		private string scriptName;
+		private string[] text;
 
 		public override string FormatName {
-			get { return "Ninokuni.Script"; }
-		}
-
-		public override void Initialize(GameFile file, params object[] parameters)
-		{
-			this.scriptName = ((XElement)parameters[0]).Value;
-			base.Initialize(file, parameters);
+			get { return "Ninokuni.BattleHelp"; }
 		}
 
 		public override void Read(DataStream strIn)
 		{
-			DataStream temp = new DataStream(new System.IO.MemoryStream(), 0, 0);
-			strIn.WriteTo(temp);
-			temp.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
+			DataReader reader = new DataReader(strIn);
 
-			script = new NinoScritor.Script(
-				temp.BaseStream,
-				scriptName,
-				"temp_names.xml",
-				"temp_context.xml",
-				"temp_replace.xml",
-				""
-			);
+			ushort num_block = reader.ReadUInt16();
+			this.text = new string[num_block];
 
-			temp.Dispose();
+			for (int i = 0; i < num_block; i++) {
+				this.text[i] = reader.ReadString(0x80);
+				this.text[i] = this.text[i].Replace("\\n", "\n");
+				this.text[i] = this.text[i].ApplyTable("replace", false);
+			}
 		}
 
 		public override void Write(DataStream strOut)
 		{
-			script.Write(strOut.BaseStream);
-			strOut.SetLength(strOut.BaseStream.Length);
+			DataWriter writer = new DataWriter(strOut);
+
+			writer.Write((ushort)this.text.Length);
+			for (int i = 0; i < this.text.Length; i++) {
+				string text = this.text[i].Replace("\n", "\\n");
+				text = text.ApplyTable("replace", true);
+				writer.Write(text, 0x80);
+			}
+
+			writer.Flush();
 		}
 
-		public override void Import(params DataStream[] strIn)
+		protected override void Import(XElement root)
 		{
-			script.ImportXML(strIn[0].BaseStream);
+			List<string> entries = new List<string>();
+			foreach (XElement child in root.Elements("String")) {
+				entries.Add(child.Value.FromXmlString(2, '<', '>'));
+			}
+
+			this.text = entries.ToArray();
 		}
 
-		public override void Export(params DataStream[] strOut)
+		protected override void Export(XElement root)
 		{
-			// Mmm... Maybe later...
-			throw new NotImplementedException();
+			foreach (string t in this.text)
+				root.Add(new XElement("String", t.ToXmlString(2, '<', '>')));
 		}
 
 		protected override void Dispose(bool freeManagedResourcesAlso)
 		{
-			// Nothing to free as far I know
+			// No managed resource to free
 		}
 	}
 }

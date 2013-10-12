@@ -47,6 +47,7 @@
     <Compile Include="Text\Subtitle.cs" />
     <Compile Include="Text\SubtitleValidation.cs" />
     <Compile Include="Script\Script.cs" />
+    <Compile Include="Text\BattleHelp.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
