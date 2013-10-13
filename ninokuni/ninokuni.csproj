@@ -53,6 +53,7 @@
     <Compile Include="Text\DownloadParam.cs" />
     <Compile Include="Text\StageInfoData.cs" />
     <Compile Include="Text\DungeonList.cs" />
+    <Compile Include="Text\MainQuest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
