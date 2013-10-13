@@ -55,6 +55,7 @@
     <Compile Include="Text\DungeonList.cs" />
     <Compile Include="Text\MainQuest.cs" />
     <Compile Include="Text\SubQuest.cs" />
+    <Compile Include="Text\Scenario.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
