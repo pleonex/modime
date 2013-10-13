@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// <copyright file="BattleHelp.cs" company="none">
+// <copyright file="DownloadParam.cs" company="none">
 // Copyright (C) 2013
 //
 //   This program is free software: you can redistribute it and/or modify
@@ -17,10 +17,9 @@
 // </copyright>
 // <author>pleoNeX</author>
 // <email>benito356@gmail.com</email>
-// <date>12/10/2013</date>
+// <date>13/10/2013</date>
 //-----------------------------------------------------------------------
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
 using Mono.Addins;
@@ -30,61 +29,93 @@ using Libgame.IO;
 namespace Ninokuni
 {
 	[Extension]
-	public class BattleHelp : XmlExportable
+	public class DownloadParam : XmlExportable
 	{
-		private string[] text;
+		private Entry[] entries;
 
 		public override string FormatName {
-			get { return "Ninokuni.BattleHelp"; }
+			get { return "Ninokuni.DownloadParam"; }
 		}
 
 		public override void Read(DataStream strIn)
 		{
 			DataReader reader = new DataReader(strIn, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
 
-			ushort num_block = reader.ReadUInt16();
-			this.text = new string[num_block];
-
-			for (int i = 0; i < num_block; i++) {
-				this.text[i] = reader.ReadString(0x80);
-				this.text[i] = this.text[i].Replace("\\n", "\n");
-				this.text[i] = this.text[i].ApplyTable("replace", false);
-			}
+			ushort numBlock = reader.ReadUInt16();
+			this.entries = new Entry[numBlock];
+			for (int i = 0; i < numBlock; i++)
+				this.entries[i] = new Entry(
+					reader.ReadUInt16(),
+					reader.ReadUInt16(),
+					reader.ReadString(0x30).ApplyTable("replace", false)
+				);
 		}
 
 		public override void Write(DataStream strOut)
 		{
 			DataWriter writer = new DataWriter(strOut, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
 
-			writer.Write((ushort)this.text.Length);
-			for (int i = 0; i < this.text.Length; i++) {
-				string text = this.text[i].Replace("\n", "\\n");
-				text = text.ApplyTable("replace", true);
-				writer.Write(text, 0x80);
+			writer.Write((ushort)this.entries.Length);
+			foreach (Entry e in this.entries) {
+				writer.Write(e.Unknown1);
+				writer.Write(e.Unknown2);
+				writer.Write(e.Text.ApplyTable("replace", true), 0x30);
 			}
-
-			writer.Flush();
 		}
 
 		protected override void Import(XElement root)
 		{
-			List<string> entries = new List<string>();
-			foreach (XElement child in root.Elements("String")) {
-				entries.Add(child.Value.FromXmlString(2, '<', '>'));
-			}
+			int i = 0;
+			foreach (XElement e in root.Elements("String")) {
+				if (i >= this.entries.Length)
+					break;	// Show warning
 
-			this.text = entries.ToArray();
+				this.entries[i] = this.entries[i].ChangeText(e.Value.FromXmlString(2, '<', '>'));
+				i++;
+			}
 		}
 
 		protected override void Export(XElement root)
 		{
-			foreach (string t in this.text)
-				root.Add(new XElement("String", t.ToXmlString(2, '<', '>')));
+			foreach (Entry e in this.entries)
+				root.Add(new XElement("String", e.Text.ToXmlString(2, '<', '>')));
 		}
 
 		protected override void Dispose(bool freeManagedResourcesAlso)
 		{
-			// No managed resource to free
+		}
+
+		private struct Entry
+		{
+			public Entry(ushort unk1, ushort unk2, string text)
+				: this()
+			{
+				this.Unknown1 = unk1;
+				this.Unknown2 = unk2;
+				this.Text     = text;
+			}
+
+			public ushort Unknown1 {
+				get;
+				private set;
+			}
+
+			// ID?
+			public ushort Unknown2 {
+				get;
+				private set;
+			}      
+
+			// 0x30 bytes
+			public string Text {
+				get;
+				private set;
+			} 
+
+			public Entry ChangeText(string newText)
+			{
+				return new Entry(this.Unknown1, this.Unknown2, newText);
+			}
 		}
 	}
 }

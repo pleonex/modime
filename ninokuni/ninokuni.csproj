@@ -10,7 +10,7 @@
     <RootNamespace>Ninokuni</RootNamespace>
     <AssemblyName>ninokuni</AssemblyName>
     <SynchReleaseVersion>false</SynchReleaseVersion>
-    <ReleaseVersion>0.1.1</ReleaseVersion>
+    <ReleaseVersion>0.1.2</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,6 +50,7 @@
     <Compile Include="Text\BattleHelp.cs" />
     <Compile Include="Text\TextBlock.cs" />
     <Compile Include="Text\TextBlockValidation.cs" />
+    <Compile Include="Text\DownloadParam.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

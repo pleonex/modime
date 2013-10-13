@@ -70,7 +70,7 @@ namespace Ninokuni
 			}
 
 			data.Seek(0, SeekMode.Origin);
-			DataReader reader = new DataReader(data);
+			DataReader reader = new DataReader(data, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
 
 			int blockSize = this.textSize + this.dataSize;
 			int numBlocks = this.hasNumBlock ? reader.ReadUInt16() : (int)(data.Length / blockSize);
@@ -116,7 +116,7 @@ namespace Ninokuni
 			foreach (XElement e in root.Elements("String")) {
 				// We can't create new blocks since we don't know the binary data
 				if (idx >= this.blocks.Length)
-					break;
+					break;	// Show warning
 
 				this.blocks[idx++].Text = e.Value.FromXmlString(2, '<', '>');
 			}
