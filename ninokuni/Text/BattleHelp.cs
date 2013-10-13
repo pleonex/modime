@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml.Linq;
 using Mono.Addins;
 using Libgame;
@@ -53,7 +54,7 @@ namespace Ninokuni
 
 		public override void Write(DataStream strOut)
 		{
-			DataWriter writer = new DataWriter(strOut);
+			DataWriter writer = new DataWriter(strOut, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
 
 			writer.Write((ushort)this.text.Length);
 			for (int i = 0; i < this.text.Length; i++) {

@@ -48,6 +48,8 @@
     <Compile Include="Text\SubtitleValidation.cs" />
     <Compile Include="Script\Script.cs" />
     <Compile Include="Text\BattleHelp.cs" />
+    <Compile Include="Text\TextBlock.cs" />
+    <Compile Include="Text\TextBlockValidation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

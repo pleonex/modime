@@ -70,7 +70,7 @@ namespace Ninokuni
 			// No extra dependency
 		}
 
-		protected override string[] GuessParameters(GameFile file)
+		protected override object[] GuessParameters(GameFile file)
 		{
 			// No extra parameters
 			return null;
