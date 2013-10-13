@@ -51,6 +51,7 @@
     <Compile Include="Text\TextBlock.cs" />
     <Compile Include="Text\TextBlockValidation.cs" />
     <Compile Include="Text\DownloadParam.cs" />
+    <Compile Include="Text\StageInfoData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
