@@ -70,7 +70,7 @@ namespace Ninokuni
 		{
 			List<string> entries = new List<string>();
 			foreach (XElement child in root.Elements("String")) {
-				entries.Add(child.Value.FromXmlString(2, '<', '>'));
+				entries.Add(child.Value.FromXmlString('<', '>'));
 			}
 
 			this.text = entries.ToArray();

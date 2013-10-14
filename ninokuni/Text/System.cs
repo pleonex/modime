@@ -68,7 +68,7 @@ namespace Ninokuni
 			foreach (XElement e in root.Elements("String"))
 				entries.Add(new Entry() {
 					Id = Convert.ToUInt32(e.Attribute("ID").Value, 16),
-					Text = e.Value.FromXmlString(2, '<', '>')
+					Text = e.Value.FromXmlString('<', '>')
 				});
 
 			this.entries = entries.ToArray();

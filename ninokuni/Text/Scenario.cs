@@ -69,7 +69,7 @@ namespace Ninokuni
 					break;	// Show warning
 
 				this.blocks[0].Entries[i].Id = Convert.ToUInt32(e.Attribute("ID").Value, 16);
-				((Entry1)this.blocks[0].Entries[i]).Text = e.Value.FromXmlString(2, '<', '>');
+				((Entry1)this.blocks[0].Entries[i]).Text = e.Value.FromXmlString('<', '>');
 				i++;
 			}
 		}

@@ -102,12 +102,12 @@ namespace Ninokuni
 			int i = 0;
 			XElement xmlStartBlocks = root.Element("StartBlocks");
 			foreach (XElement e in xmlStartBlocks.Elements("String"))
-				this.startBlocks[i++] = e.Value.FromXmlString(3, '<', '>');
+				this.startBlocks[i++] = e.Value.FromXmlString('<', '>');
 
 			i = 0;
 			XElement xmlEndBlocks = root.Element("FinalBlocks");
 			foreach (XElement e in xmlEndBlocks.Elements("String"))
-				this.endBlocks[i++] = e.Value.FromXmlString(3, '<', '>');
+				this.endBlocks[i++] = e.Value.FromXmlString('<', '>');
 		}
 
 		protected override void Export(XElement root)

@@ -70,7 +70,7 @@ namespace Ninokuni
 				if (i >= this.entries.Length)
 					break;	// Show warning
 
-				this.entries[i] = this.entries[i].ChangeText(e.Value.FromXmlString(2, '<', '>'));
+				this.entries[i] = this.entries[i].ChangeText(e.Value.FromXmlString('<', '>'));
 				i++;
 			}
 		}

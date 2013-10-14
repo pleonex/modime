@@ -118,7 +118,7 @@ namespace Ninokuni
 				if (idx >= this.blocks.Length)
 					break;	// Show warning
 
-				this.blocks[idx++].Text = e.Value.FromXmlString(2, '<', '>');
+				this.blocks[idx++].Text = e.Value.FromXmlString('<', '>');
 			}
 		}
 

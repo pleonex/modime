@@ -90,7 +90,7 @@ namespace Ninokuni
 				int i = 0;
 				b.Elements = new string[3];
 				foreach (XElement xmlElement in xmlBlock.Elements("String"))
-					b.Elements[i++] = xmlElement.Value.FromXmlString(3, '<', '>');
+					b.Elements[i++] = xmlElement.Value.FromXmlString('<', '>');
 
 				blocks.Add(b);
 			}

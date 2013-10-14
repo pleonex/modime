@@ -87,11 +87,11 @@ namespace Ninokuni
 		{
 			List<Entry> entries = new List<Entry>();
 			foreach (XElement e in root.Elements("Block")) {
-				string title = e.Element("Title").Value.FromXmlString(3, '<', '>');
+				string title = e.Element("Title").Value.FromXmlString('<', '>');
 				Dungeon[] dungeons = e.Elements("Message").
 				                     Select<XElement, Dungeon>(
 					                     xmsg => new Dungeon() { 
-												Text       = xmsg.Value.FromXmlString(3, '<', '>'),
+												Text       = xmsg.Value.FromXmlString('<', '>'),
 												ScriptName = xmsg.Attribute("Script").Value
 										}
 					                 ).ToArray();

@@ -122,12 +122,12 @@ namespace Ninokuni
 				switch (el.Name.LocalName) {
 				case "Text":
 					entry.Type = SubtitleType.Text;
-					entry.Data = el.Value.FromXmlString(2, '<', '>');
+					entry.Data = el.Value.FromXmlString('<', '>');
 					break;
 
 				case "Comment":
 					entry.Type = SubtitleType.Comment;
-					entry.Data = el.Value.FromXmlString(2, '<', '>');
+					entry.Data = el.Value.FromXmlString('<', '>');
 					break;
 
 				case "Voice":
