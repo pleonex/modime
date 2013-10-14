@@ -63,7 +63,7 @@ namespace Common
 				foreach (XElement xmlText in xmlBlock.Elements("Text")) {
 					uint   offset = Convert.ToUInt32(xmlText.Attribute("Offset").Value, 16);
 					int    size   = Convert.ToInt32(xmlText.Attribute("Size").Value, 10);
-					string text   = xmlText.Value.FromXmlString('【', '】').ApplyTable("replace", true);
+					string text   = xmlText.Value.FromXmlString('<', '>').ApplyTable("replace", true);
 
 					// Write string
 					try {
