@@ -51,10 +51,8 @@ namespace Ninokuni
 				this.blocks[i]    = new Block();
 				this.blocks[i].Id = reader.ReadUInt32();
 				this.blocks[i].Elements = new string[3];
-				for (int j = 0; j < 3; j++) {
-					ushort textSize = reader.ReadUInt16();
-					this.blocks[i].Elements[j] = reader.ReadString(textSize).ApplyTable("replace", false);
-				}
+				for (int j = 0; j < 3; j++)
+					this.blocks[i].Elements[j] = reader.ReadString(typeof(ushort), "replace", false);
 
 				reader.ReadByte();	// 0x00
 			}
@@ -62,19 +60,15 @@ namespace Ninokuni
 
 		public override void Write(DataStream strOut)
 		{
-			Encoding encoding = Encoding.GetEncoding("shift_jis");
-			DataWriter writer = new DataWriter(strOut, EndiannessMode.LittleEndian, encoding);
+			DataWriter writer = new DataWriter(strOut, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
 
 			writer.Write((ushort)this.blocks.Length);
 			foreach (Block b in this.blocks) {
 				writer.Write(this.GetBlockSize(b));
 				writer.Write(b.Id);
 
-				foreach (string t in b.Elements) {
-					byte[] data = encoding.GetBytes(t.ApplyTable("replace", true));
-					writer.Write((ushort)data.Length);
-					writer.Write(data);
-				}
+				foreach (string t in b.Elements)
+					writer.Write(t, typeof(ushort), "replace", true);
 
 				writer.Write((byte)0x00);
 			}
@@ -120,7 +114,7 @@ namespace Ninokuni
 			int size = 4;	// Id
 
 			foreach (string t in b.Elements)
-				size += encoding.GetByteCount(t) + 2;	// Size + text
+				size += encoding.GetByteCount(t.ApplyTable("replace", true)) + 2;	// Text + size
 
 			size += 1;	// Null byte
 
