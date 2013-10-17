@@ -32,14 +32,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Mono.Addins, Version=0.6.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
-      <Private>False</Private>
-      <Package>mono-addins</Package>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
     <Reference Include="NinoScritor">
       <HintPath>..\..\..\ninokuni\programs\NinoScritor\NinoScritor\bin\Release\NinoScritor.exe</HintPath>
+    </Reference>
+    <Reference Include="Mono.Addins">
+      <HintPath>..\Mono.Addins.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
