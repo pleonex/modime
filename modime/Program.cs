@@ -45,34 +45,38 @@ namespace Modime
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 
-			// Tests
-//			TestNdsRomRead(
-//				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
-//				"/main/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt",
-//				"/lab/nds/projects/generic/s01.txt");
-//			TestNdsRomWrite("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
-//			TestNinokuniExportImport(
-//				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
-//				"/Ninokuni [CLEAN].nds/ROM/data/movie/s01.txt");
-//			TestXmlImporting("/store/Juegos/NDS/Ninokuni [CLEAN].nds");
-//			return;
+			int argIdx = 0;
+
+			// Get global settings
+			string[] inputNames = new string[0];
+			for (; argIdx < args.Length; argIdx++) {
+				if (args[argIdx].StartsWith("--set-input-names=")) {
+					inputNames = args[argIdx++].Substring(18).
+					             Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+					break;
+				}
+			}
 
 			// Import. Single file as input
-			if (args.Length == 5 && args[0] == "-i") {
-				DataStream stream = new DataStream(args[3], FileMode.Open, FileAccess.Read);
-				GameFile mainFile = new GameFile(Path.GetFileName(args[3]), stream);
+			if (args.Length >= 5 && args[argIdx] == "-i") {
+				string filename = (inputNames.Length > 0) ? inputNames[0] : Path.GetFileName(args[argIdx + 3]);
 
-				string xmlGame = Path.Combine(AppPath, args[1]);
-				string xmlEdit = Path.Combine(AppPath, args[2]);
+				DataStream stream = new DataStream(args[argIdx + 3], FileMode.Open, FileAccess.Read);
+				GameFile mainFile = new GameFile(filename, stream);
+
+				string xmlGame = Path.Combine(AppPath, args[argIdx + 1]);
+				string xmlEdit = Path.Combine(AppPath, args[argIdx + 2]);
 				Worker worker = new Worker(xmlGame, xmlEdit, mainFile);
 				worker.Import();
-				worker.Write(args[4]);
+				worker.Write(args[argIdx + 4]);
 			}
 
 			watch.Stop();
 			Console.WriteLine("Done! It took: {0}", watch.Elapsed);
-			//Console.Write("Press any key to quit . . .");
-			//Console.ReadKey(true);
+			#if !DEBUG
+			Console.Write("Press any key to quit . . .");
+			Console.ReadKey(true);
+			#endif
 		}
 
 	}
