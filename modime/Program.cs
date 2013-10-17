@@ -42,15 +42,6 @@ namespace Modime
 			AddinManager.Initialize();
 			AddinManager.Registry.Update();
 
-			// DEBUG
-			args = new string[] { 
-				"-i",
-				"Ninokuni.xml",
-				"Ninokuni español.xml",
-				"/store/Juegos/NDS/Ninokuni [CLEAN].nds",
-				"/lab/nds/projects/ninokuni/Alpha.nds"
-			 };
-
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 

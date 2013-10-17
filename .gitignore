@@ -1,4 +1,5 @@
 # Ignore IDE conf files
+modime.usertasks
 modime.userprefs
 modime.suo
 modime/modime.csproj.user
@@ -8,3 +9,6 @@ modime/bin/
 modime/obj/
 libgame/bin/
 libgame/obj/
+common/obj/
+ninokuni/obj/
+nitro/obj/
