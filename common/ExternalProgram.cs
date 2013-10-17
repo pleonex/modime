@@ -61,6 +61,7 @@ namespace Common
 			string outputPath  = config.ResolvePath(xmlImport.Element("OutputFile").Value);
 			bool autoremoveOut = bool.Parse(xmlImport.Element("OutputFile").Attribute("autoremove").Value);
 			bool autoremoveCpy = bool.Parse(xmlImport.Element("CopyTo").Attribute("autoremove").Value);
+			XElement envVars   = xmlImport.Element("EnvironmentVariables");
 
 			// Resolve variables
 			string[] tempFiles = new string[strIn.Length];
@@ -93,6 +94,15 @@ namespace Common
 			startInfo.ErrorDialog     = false;
 			startInfo.RedirectStandardInput  = (copyTo == "$stdIn") ? true : false;
 			startInfo.RedirectStandardOutput = true;
+
+			// Set environmet variables
+			if (envVars != null) {
+				foreach (XElement variable in envVars.Elements("Variable"))
+					startInfo.EnvironmentVariables.Add(
+						variable.Element("Name").Value,
+						variable.Element("Value").Value
+					);
+			}
 
 			Process program = new Process();
 			program.StartInfo = startInfo;
