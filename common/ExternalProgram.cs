@@ -92,7 +92,7 @@ namespace Common
 			startInfo.CreateNoWindow  = true;
 			startInfo.ErrorDialog     = false;
 			startInfo.RedirectStandardInput  = (copyTo == "$stdIn") ? true : false;
-			startInfo.RedirectStandardOutput = (outputPath == "$stdOut") ? true : false;
+			startInfo.RedirectStandardOutput = true;
 
 			Process program = new Process();
 			program.StartInfo = startInfo;
