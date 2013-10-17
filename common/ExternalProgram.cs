@@ -54,6 +54,7 @@ namespace Common
 			Configuration config = Configuration.GetInstance();
 			XElement xmlImport = ((XElement)parameters[0]).Element("Import");
 
+			string inUnixRunOn = xmlImport.Element("InUnixRunOn").Value;
 			string arguments   = xmlImport.Element("Arguments").Value;
 			string programPath = config.ResolvePath(xmlImport.Element("Path").Value);
 			string copyTo      = config.ResolvePath(xmlImport.Element("CopyTo").Value);
@@ -77,6 +78,11 @@ namespace Common
 			// Write the data stream to a temp file
 			if (copyTo != "$stdIn" && !string.IsNullOrEmpty(copyTo))
 				this.data.WriteTo(copyTo);
+
+			if (config.OsName == "Unix" && !string.IsNullOrEmpty(inUnixRunOn)) {
+				arguments = programPath + " " + arguments;	// The program now is one of the arguments
+				programPath = inUnixRunOn;
+			}
 
 			// Call to the program
 			ProcessStartInfo startInfo = new ProcessStartInfo();
