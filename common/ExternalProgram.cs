@@ -127,8 +127,13 @@ namespace Common
 			program.Close();
 
 			// Read the data from the output file
-			if (outputPath != "$stdOut")
-				this.data = new DataStream(outputPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+			if (outputPath != "$stdOut") {
+				DataStream fileStream = new DataStream(outputPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+				this.data = new DataStream(new System.IO.MemoryStream(), 0, 0);
+
+				fileStream.WriteTo(this.data);
+				fileStream.Dispose();
+			}
 
 			// Remove temp files
 			for (int i = 0; i < tempFiles.Length; i++)
