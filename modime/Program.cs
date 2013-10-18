@@ -36,6 +36,7 @@ namespace Modime
 	{
 		public static void Main(string[] args)
 		{
+			Console.CursorVisible = false;
 			Console.WriteLine("/*");
 			Console.WriteLine("****************************");
 			Console.WriteLine("**         ModiMe         **");
