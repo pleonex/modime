@@ -38,6 +38,18 @@ namespace Modime
 
 		public static void Main(string[] args)
 		{
+			Console.WriteLine("/*");
+			Console.WriteLine("****************************");
+			Console.WriteLine("**         ModiMe         **");
+			Console.WriteLine("** The new way to modify  **");
+			Console.WriteLine("**       your games       **");
+			Console.WriteLine("****************************");
+			Console.WriteLine("~~~~~~~~ by pleoNeX ~~~~~~~~");
+			Console.WriteLine("| Version: {0,-16}|", Assembly.GetExecutingAssembly().GetName().Version);
+			Console.WriteLine("~~~~~ Good RomHacking! ~~~~~");
+			Console.WriteLine("*/");
+			Console.WriteLine();
+
 			// Initializations
 			AddinManager.Initialize();
 			AddinManager.Registry.Update();

@@ -40,5 +40,6 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = modime\modime.csproj
+		version = 1.0
 	EndGlobalSection
 EndGlobal
