@@ -55,7 +55,7 @@ namespace Common
 			XElement xmlImport = ((XElement)parameters[0]).Element("Import");
 
 			string inUnixRunOn = xmlImport.Element("InUnixRunOn").Value;
-			string arguments   = xmlImport.Element("Arguments").Value;
+			string arguments   = config.ResolvePathInVariable(xmlImport.Element("Arguments").Value);
 			string programPath = config.ResolvePath(xmlImport.Element("Path").Value);
 			string copyTo      = config.ResolvePath(xmlImport.Element("CopyTo").Value);
 			string outputPath  = config.ResolvePath(xmlImport.Element("OutputFile").Value);
