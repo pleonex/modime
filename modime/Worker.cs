@@ -55,7 +55,18 @@ namespace Modime
 		{
 			XElement files = edit.Root.Element("Files");
 
+			int i = 1;
+			int x = Console.CursorLeft;
+			int y = Console.CursorTop;
+			int updX = x;
+			int updY = y + 1;
+			int totalImports = files.Elements("File").Count();
+
 			foreach (XElement fileEdit in files.Elements("File")) {
+				Console.SetCursorPosition(x, y);
+				Console.WriteLine("Import file {0:0000} of {1:0000}", i++, totalImports);
+				Console.SetCursorPosition(updX, updY);
+
 				string path = fileEdit.Element("Path").Value;
 				string[] import = fileEdit.Elements("Import").
 				                  Select(f => this.config.ResolvePath(f.Value)).
@@ -65,12 +76,16 @@ namespace Modime
 				file.Format.Read();
 				file.Format.Import(import);
 				this.UpdateQueue(file);
+
+				updX = Console.CursorLeft;
+				updY = Console.CursorTop;
 			}
 		}
 
 		public void Write(params string[] outputPath)
 		{
 			// Write files data
+			Console.WriteLine("Writing {0:0000} internal files...", this.updateQueue.Count);
 			foreach (string filePath in this.updateQueue) {
 				GameFile file = this.fileManager.Root.SearchFile(filePath) as GameFile;
 				if (file == null)
@@ -82,6 +97,7 @@ namespace Modime
 			this.updateQueue.Clear();
 
 			// Write to output files
+			Console.WriteLine("Writing {0:0000} external files...", outputPath.Length);
 			if (fileManager.Root is GameFile) {
 				if (outputPath.Length != 1)
 					throw new ArgumentException("Only one file can be written");
@@ -90,7 +106,7 @@ namespace Modime
 					System.IO.File.Delete(outputPath[0]);
 				((GameFile)fileManager.Root).Stream.WriteTo(outputPath[0]);
 			} else if (fileManager.Root is GameFolder) {
-				if (outputPath.Length != fileManager.Root.Folders.Count)
+				if (outputPath.Length != fileManager.Root.Files.Count)
 					throw new ArgumentException("There are not enough output paths.");
 
 				for (int i = 0; i < fileManager.Root.Files.Count; i++) {

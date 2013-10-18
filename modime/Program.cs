@@ -34,8 +34,6 @@ namespace Modime
 {
 	public static class MainClass
 	{
-		private static string AppPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
 		public static void Main(string[] args)
 		{
 			Console.WriteLine("/*");
@@ -83,6 +81,7 @@ namespace Modime
 				Console.WriteLine("Game specs:   {0}", xmlGame);
 				Console.WriteLine("Modify specs: {0}", xmlEdit);
 				Console.WriteLine("Now... Let's start!");
+				Console.WriteLine();
 
 				DataStream stream = new DataStream(inputFile, FileMode.Open, FileAccess.Read);
 				GameFile mainFile = new GameFile(filename, stream);
