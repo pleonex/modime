@@ -71,19 +71,31 @@ namespace Modime
 
 			// Import. Single file as input
 			if (args.Length >= 5 && args[argIdx] == "-i") {
-				string filename = (inputNames.Length > 0) ? inputNames[0] : Path.GetFileName(args[argIdx + 3]);
+				string xmlGame    = args[argIdx + 1];
+				string xmlEdit    = args[argIdx + 2];
+				string outputFile = args[argIdx + 4];
+				string inputFile  = args[argIdx + 3];
+				string filename   = (inputNames.Length > 0) ? inputNames[0] : Path.GetFileName(inputFile);
 
-				DataStream stream = new DataStream(args[argIdx + 3], FileMode.Open, FileAccess.Read);
+				Console.WriteLine("Time to import!");
+				Console.WriteLine("From {0}", inputFile);
+				Console.WriteLine("To   {0}", outputFile);
+				Console.WriteLine("Game specs:   {0}", xmlGame);
+				Console.WriteLine("Modify specs: {0}", xmlEdit);
+				Console.WriteLine("Now... Let's start!");
+
+				DataStream stream = new DataStream(inputFile, FileMode.Open, FileAccess.Read);
 				GameFile mainFile = new GameFile(filename, stream);
 
-				string xmlGame = Path.Combine(AppPath, args[argIdx + 1]);
-				string xmlEdit = Path.Combine(AppPath, args[argIdx + 2]);
 				Worker worker = new Worker(xmlGame, xmlEdit, mainFile);
 				worker.Import();
-				worker.Write(args[argIdx + 4]);
+				worker.Write(outputFile);
+			} else {
+				ShowHelp();
 			}
 
 			watch.Stop();
+			Console.WriteLine();
 			Console.WriteLine("Done! It took: {0}", watch.Elapsed);
 			#if !DEBUG
 			Console.Write("Press any key to quit . . .");
@@ -91,5 +103,20 @@ namespace Modime
 			#endif
 		}
 
+		private static void ShowHelp()
+		{
+			Console.WriteLine("USAGE: modime [settings] [mode] [parameters]");
+			Console.WriteLine("% Settings:");
+			Console.WriteLine("\t--set-input-names=name1,name2\tSet the name of the input files.");
+			Console.WriteLine("\t\t\t\t\tThat name will be used in the");
+			Console.WriteLine("\t\t\t\t\tvirtual filesystem.");
+			Console.WriteLine();
+			Console.WriteLine("% Mode:");
+			Console.WriteLine("\t-i\tOpen a file and run the import process from it.");
+			Console.WriteLine("\t\tParameter0: XML Game Specification");
+			Console.WriteLine("\t\tParameter1: XML Modify Specification");
+			Console.WriteLine("\t\tParameter2: Input file path");
+			Console.WriteLine("\t\tParameter3: Output file path");
+		}
 	}
 }
