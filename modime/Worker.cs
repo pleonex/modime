@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Libgame;
+using Libgame.Utils;
 using Mono.Addins;
 
 namespace Modime
@@ -55,18 +56,9 @@ namespace Modime
 		{
 			XElement files = edit.Root.Element("Files");
 
-			int i = 1;
-			int x = Console.CursorLeft;
-			int y = Console.CursorTop;
-			int updX = x;
-			int updY = y + 1;
-			int totalImports = files.Elements("File").Count();
-
+			ConsoleCount count = new ConsoleCount("Importing file {0:0000} of {1:0000}", files.Elements("File").Count());
 			foreach (XElement fileEdit in files.Elements("File")) {
-				Console.SetCursorPosition(x, y);
-				Console.WriteLine("Import file {0:0000} of {1:0000}", i++, totalImports);
-				Console.SetCursorPosition(updX, updY);
-
+				count.Show();
 				string path = fileEdit.Element("Path").Value;
 				string[] import = fileEdit.Elements("Import").
 				                  Select(f => this.config.ResolvePath(f.Value)).
@@ -76,34 +68,36 @@ namespace Modime
 				file.Format.Read();
 				file.Format.Import(import);
 				this.UpdateQueue(file);
-
-				updX = Console.CursorLeft;
-				updY = Console.CursorTop;
+				count.UpdateCoordinates();
 			}
 		}
 
 		public void Write(params string[] outputPath)
 		{
 			// Write files data
-			Console.WriteLine("Writing {0:0000} internal files...", this.updateQueue.Count);
+			ConsoleCount count = new ConsoleCount("Writing internal file {0:0000} of {1:0000}", this.updateQueue.Count);
 			foreach (string filePath in this.updateQueue) {
+				count.Show();
 				GameFile file = this.fileManager.Root.SearchFile(filePath) as GameFile;
 				if (file == null)
 					throw new Exception("File not found.");
 
 				file.Format.Write();
+				count.UpdateCoordinates();
 			}
 
 			this.updateQueue.Clear();
 
 			// Write to output files
-			Console.WriteLine("Writing {0:0000} external files...", outputPath.Length);
+			count = new ConsoleCount("Writing external file {0:0000} of {1:0000}", outputPath.Length);
 			if (fileManager.Root is GameFile) {
 				if (outputPath.Length != 1)
 					throw new ArgumentException("Only one file can be written");
 
 				if (System.IO.File.Exists(outputPath[0]))
 					System.IO.File.Delete(outputPath[0]);
+
+				count.Show();
 				((GameFile)fileManager.Root).Stream.WriteTo(outputPath[0]);
 			} else if (fileManager.Root is GameFolder) {
 				if (outputPath.Length != fileManager.Root.Files.Count)
@@ -114,7 +108,10 @@ namespace Modime
 					if (f != null) {
 						if (System.IO.File.Exists(outputPath[i]))
 							System.IO.File.Delete(outputPath[i]);
+
+						count.Show();
 						f.Stream.WriteTo(outputPath[i]);
+						count.UpdateCoordinates();
 					}
 				}
 			}
