@@ -81,7 +81,7 @@ namespace Common
 				this.data.WriteTo(copyTo);
 
 			if (config.OsName == "Unix" && !string.IsNullOrEmpty(inUnixRunOn)) {
-				arguments = programPath + " " + arguments;	// The program now is one of the arguments
+				arguments = string.Format("\"{0}\" {1}", programPath, arguments);
 				programPath = inUnixRunOn;
 			}
 
