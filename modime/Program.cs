@@ -97,8 +97,9 @@ namespace Modime
 			watch.Stop();
 			Console.WriteLine();
 			Console.WriteLine("Done! It took: {0}", watch.Elapsed);
+			Console.CursorVisible = true;
 			#if !DEBUG
-			Console.Write("Press any key to quit . . .");
+			Console.WriteLine("Press any key to quit . . .");
 			Console.ReadKey(true);
 			#endif
 		}
