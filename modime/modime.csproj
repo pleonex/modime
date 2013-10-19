@@ -22,7 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <Externalconsole>true</Externalconsole>
-    <Commandlineparameters>--set-input-names=Ninokuni.nds -i "Ninokuni.xml" "Ninokuni español.xml" "/store/Juegos/NDS/Ninokuni [CLEAN].nds" "/lab/nds/projects/ninokuni/Alpha.nds"</Commandlineparameters>
+    <Commandlineparameters>--set-input-names=Ninokuni.nds -i "/home/benito/Dropbox/Ninokuni español/NinoPatcher/Ninokuni.xml" "/home/benito/Dropbox/Ninokuni español/NinoPatcher/Ninokuni español.xml" "/store/Juegos/NDS/Ninokuni [CLEAN].nds" "/lab/nds/projects/ninokuni/Alpha.nds"</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
