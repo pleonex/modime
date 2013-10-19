@@ -124,11 +124,16 @@ namespace Common
 			}
 
 			program.WaitForExit();
-			program.Close();
+			program.Dispose();
 
 			// Read the data from the output file
 			if (outputPath != "$stdOut") {
-				DataStream fileStream = new DataStream(outputPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+				DataStream fileStream = new DataStream(
+					outputPath,
+					System.IO.FileMode.Open,
+					System.IO.FileAccess.Read,
+					System.IO.FileShare.ReadWrite
+				);
 				this.data = new DataStream(new System.IO.MemoryStream(), 0, 0);
 
 				fileStream.WriteTo(this.data);
@@ -143,7 +148,7 @@ namespace Common
 			if (autoremoveCpy && System.IO.File.Exists(copyTo))
 				System.IO.File.Delete(copyTo);
 
-			if (autoremoveOut && System.IO.File.Exists(outputPath))
+			if (autoremoveOut && copyTo != outputPath && System.IO.File.Exists(outputPath))
 				System.IO.File.Delete(outputPath);
 		}
 
