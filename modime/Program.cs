@@ -69,7 +69,7 @@ namespace Modime
 			}
 
 			// Import. Single file as input
-			if (args.Length >= 5 && args[argIdx] == "-i") {
+			if (args.Length >= 5 && (args[argIdx] == "-i" || args[argIdx] == "-inew")) {
 				string xmlGame    = args[argIdx + 1];
 				string xmlEdit    = args[argIdx + 2];
 				string outputFile = args[argIdx + 4];
@@ -86,9 +86,13 @@ namespace Modime
 
 				DataStream stream = new DataStream(inputFile, FileMode.Open, FileAccess.Read);
 				GameFile mainFile = new GameFile(filename, stream);
-
 				Worker worker = new Worker(xmlGame, xmlEdit, mainFile);
-				worker.Import();
+
+				if (args[argIdx] == "-i")
+					worker.Import();
+				else if (args[argIdx] == "-inew")
+					worker.Import(File.GetLastWriteTime(inputFile));
+
 				worker.Write(outputFile);
 			} else {
 				ShowHelp();
@@ -118,6 +122,9 @@ namespace Modime
 			Console.WriteLine("\t\tParameter1: XML Modify Specification");
 			Console.WriteLine("\t\tParameter2: Input file path");
 			Console.WriteLine("\t\tParameter3: Output file path");
+			Console.WriteLine("\t-inew\tOpen a file and run the import process from it.");
+			Console.WriteLine("\t\t*Only* import files that have been modified after input");
+			Console.WriteLine("\t\tfile was written. Same parameters as \"-i\" mode.");
 		}
 	}
 }

@@ -52,24 +52,44 @@ namespace Modime
 		{
 		}
 
-		public void Import()
+		public void Import(Func<string, bool> importFilter)
 		{
 			XElement files = edit.Root.Element("Files");
 
-			ConsoleCount count = new ConsoleCount("Importing file {0:0000} of {1:0000}", files.Elements("File").Count());
+			ConsoleCount count = new ConsoleCount(
+				"Importing file {0:0000} of {1:0000}",
+				files.Elements("File").Count()
+			);
+
 			foreach (XElement fileEdit in files.Elements("File")) {
 				count.Show();
 				string path = fileEdit.Element("Path").Value;
 				string[] import = fileEdit.Elements("Import").
 				                  Select(f => this.config.ResolvePath(f.Value)).
+				                  Where(importFilter).
 				                  ToArray();
 
-				GameFile file = fileManager.RescueFile(path);
-				file.Format.Read();
-				file.Format.Import(import);
-				this.UpdateQueue(file);
+				if (import.Length > 0) {
+					GameFile file = fileManager.RescueFile(path);
+					file.Format.Read();
+					file.Format.Import(import);
+					this.UpdateQueue(file);
+				}
+
 				count.UpdateCoordinates();
 			}
+		}
+
+		public void Import()
+		{
+			// Import every file
+			this.Import(f => true);
+		}
+
+		public void Import(DateTime importFrom)
+		{
+			// Import only if it has been modified from date specified
+			this.Import(f => System.IO.File.GetLastWriteTime(f) > importFrom);
 		}
 
 		public void Write(params string[] outputPath)
