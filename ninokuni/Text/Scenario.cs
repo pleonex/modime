@@ -332,8 +332,8 @@ namespace Ninokuni
 					                    EndiannessMode.LittleEndian,
 					                    encoding);
 				byte[] data = encoding.GetBytes(this.Text);
-				writer.Write(this.Unknown);
 				writer.Write((byte)(data.Length + 4));
+				writer.Write(this.Unknown);
 				writer.Write(data);
 				writer.Write(this.Unknown2);
 			}
