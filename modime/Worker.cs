@@ -64,15 +64,13 @@ namespace Modime
 			foreach (XElement fileEdit in files.Elements("File")) {
 				count.Show();
 				string path = fileEdit.Element("Path").Value;
-				string[] import = fileEdit.Elements("Import").
-				                  Select(f => this.config.ResolvePath(f.Value)).
-				                  Where(importFilter).
-				                  ToArray();
+				IEnumerable<string> import = fileEdit.Elements("Import").
+				                             Select(f => this.config.ResolvePath(f.Value));
 
-				if (import.Length > 0) {
+				if (import.Select(importFilter).Any(e => e)) {
 					GameFile file = fileManager.RescueFile(path);
 					file.Format.Read();
-					file.Format.Import(import);
+					file.Format.Import(import.ToArray());
 					this.UpdateQueue(file);
 				}
 
