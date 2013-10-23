@@ -54,12 +54,14 @@ namespace Ninokuni.Script
 			strIn.WriteTo(temp);
 			temp.BaseStream.Seek(0, System.IO.SeekOrigin.Begin);
 
+			Configuration config = Configuration.GetInstance();
+
 			script = new NinoScritor.Script(
 				temp.BaseStream,
 				scriptName,
-				"temp_names.xml",
-				"temp_context.xml",
-				"temp_replace.xml",
+				System.IO.Path.Combine(config.AppPath, "temp_names.xml"),
+				System.IO.Path.Combine(config.AppPath, "temp_context.xml"),
+				System.IO.Path.Combine(config.AppPath, "temp_replace.xml"),
 				""
 			);
 
