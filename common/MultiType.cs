@@ -59,7 +59,7 @@ namespace Common
 				                      Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).
 				                      Select( idx => int.Parse(idx) ).ToArray();
 
-				Format format = FileManager.GetInstance().GetFormat(name);
+				Format format = FileManager.GetFormat(name);
 				format.Initialize(this.File, parameters);
 
 				format.Read(this.data);

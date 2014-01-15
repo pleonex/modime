@@ -49,10 +49,6 @@ namespace Modime
 			Console.WriteLine("*/");
 			Console.WriteLine();
 
-			// Initializations
-			AddinManager.Initialize();
-			AddinManager.Registry.Update();
-
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 

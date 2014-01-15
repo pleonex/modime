@@ -24,7 +24,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
-using Mono.Addins;
 using Libgame;
 using Libgame.IO;
 
@@ -37,9 +36,7 @@ namespace Modime
 		private static void TestNdsRomRead(string romPath, string filePath, string outPath)
 		{
 			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
-			Format romFormat = AddinManager.GetExtensionObjects<Format>().
-			                   Where(f => f.GetType().Name == "Rom").
-			                   ToArray()[0];
+			Format romFormat = FileManager.GetFormat("Rom");
 
 			GameFolder main = new GameFolder("main");
 			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
@@ -61,7 +58,7 @@ namespace Modime
 		{
 			DataStream outStream = new DataStream(new MemoryStream(), 0, 0);
 			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
-			Format romFormat = AddinManager.GetExtensionObjects<Format>()[0];
+			Format romFormat = FileManager.GetFormat("Rom");
 
 			GameFile rom = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
 			romFormat.Initialize(rom);
@@ -87,12 +84,8 @@ namespace Modime
 		private static void TestNinokuniExportImport(string romPath, string filePath)
 		{
 			DataStream romStream = new DataStream(romPath, FileMode.Open, FileAccess.Read);
-			Format romFormat = AddinManager.GetExtensionObjects<Format>().
-			                   Where(f => f.GetType().Name == "Rom").
-			                   ToArray()[0];
-			Format subtitleFormat = AddinManager.GetExtensionObjects<Format>().
-			                        Where(f => f.GetType().Name == "Subtitle").
-			                        ToArray()[0];
+			Format romFormat = FileManager.GetFormat("Rom");
+			Format subtitleFormat = FileManager.GetFormat("Subtitle");
 
 			GameFile rom  = new GameFile(Path.GetFileName(romPath), romStream, romFormat);
 			romFormat.Initialize(rom);

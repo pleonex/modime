@@ -25,7 +25,6 @@ using System.Linq;
 using System.Xml.Linq;
 using Libgame;
 using Libgame.Utils;
-using Mono.Addins;
 
 namespace Modime
 {
