@@ -30,7 +30,7 @@ using Mono.Addins;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("pleonex 2013")]
+[assembly: AssemblyCopyright("pleonex 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
@@ -44,4 +44,4 @@ using Mono.Addins;
 
 // Mono.Addins
 [assembly: Addin]
-[assembly: AddinDependency("modime", "0.2")]
+[assembly: AddinDependency("libgame", "0.3")]

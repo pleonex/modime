@@ -23,12 +23,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using Mono.Addins;
 using Libgame;
 using Libgame.IO;
-
-[assembly:AddinRoot("modime", "0.2")]
-[assembly:ImportAddinAssembly("libgame.dll")]
 
 namespace Modime
 {
