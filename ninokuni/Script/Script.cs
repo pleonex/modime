@@ -81,8 +81,8 @@ namespace Ninokuni.Script
 
 		public override void Export(params DataStream[] strOut)
 		{
-			// Mmm... Maybe later...
-			throw new NotImplementedException();
+			script.ExportXML(strOut[0].BaseStream);
+			strOut[0].SetLength(strOut[0].BaseStream.Length);
 		}
 
 		protected override void Dispose(bool freeManagedResourcesAlso)
