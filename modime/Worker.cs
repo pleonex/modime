@@ -51,6 +51,40 @@ namespace Modime
 		{
 		}
 
+		public void Export()
+		{
+			XElement files = edit.Root.Element("Files");
+
+			ConsoleCount count = new ConsoleCount(
+				"Exporting file {0:0000} of {1:0000}",
+				files.Elements("File").Count()
+			);
+
+			foreach (XElement fileEdit in files.Elements("File")) {
+				count.Show();
+				string path = fileEdit.Element("Path").Value;
+				IEnumerable<string> exportPaths = fileEdit.Elements("Import").
+				                                  Select(f => this.config.ResolvePath(f.Value));
+
+				foreach (string p in exportPaths.Select(f => System.IO.Path.GetDirectoryName(f)))
+					if (!System.IO.Directory.Exists(p))
+						System.IO.Directory.CreateDirectory(p);
+
+				if (exportPaths.Count() > 0) {
+					GameFile file = fileManager.RescueFile(path);
+					file.Format.Read();
+					try {
+						file.Format.Export(exportPaths.ToArray());
+					} catch (Exception ex) {
+						//Console.WriteLine("Can not export {0}", path);
+						//Console.WriteLine(ex.Message);
+					}
+				}
+
+				count.UpdateCoordinates();
+			}
+		}
+
 		public void Import(Func<string, bool> importFilter)
 		{
 			XElement files = edit.Root.Element("Files");

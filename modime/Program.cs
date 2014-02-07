@@ -61,7 +61,7 @@ namespace Modime
 			}
 
 			// Import. Single file as input
-			if (args.Length >= 5 && (args[argIdx] == "-i" || args[argIdx] == "-inew")) {
+			if (args.Length >= 5 && (args[argIdx] == "-i" || args[argIdx] == "-inew" || args[argIdx] == "-e")) {
 				string xmlGame    = args[argIdx + 1];
 				string xmlEdit    = args[argIdx + 2];
 				string outputFile = args[argIdx + 4];
@@ -84,8 +84,11 @@ namespace Modime
 					worker.Import();
 				else if (args[argIdx] == "-inew")
 					worker.Import(File.GetLastWriteTime(inputFile));
+				else if (args[argIdx] == "-e")
+					worker.Export();
 
-				worker.Write(outputFile);
+				if (args[argIdx] == "-i" || args[argIdx] == "-inew")
+					worker.Write(outputFile);
 			} else {
 				ShowHelp();
 			}
