@@ -80,12 +80,20 @@ namespace Modime
 				GameFile mainFile = new GameFile(filename, stream);
 				Worker worker = new Worker(xmlGame, xmlEdit, mainFile);
 
+				bool result = false;
 				if (args[argIdx] == "-i")
-					worker.Import();
+					result = worker.Import();
 				else if (args[argIdx] == "-inew")
-					worker.Import(File.GetLastWriteTime(inputFile));
+					result = worker.Import(File.GetLastWriteTime(inputFile));
 				else if (args[argIdx] == "-e")
-					worker.Export();
+					result = worker.Export();
+
+				// On error
+				if (!result) {
+					Console.WriteLine("Press a key to quit. . .");
+					Console.ReadKey(true);
+					return;
+				}
 
 				if (args[argIdx] == "-i" || args[argIdx] == "-inew")
 					worker.Write(outputFile);

@@ -51,7 +51,7 @@ namespace Modime
 		{
 		}
 
-		public void Export()
+		public bool Export()
 		{
 			XElement files = edit.Root.Element("Files");
 
@@ -78,14 +78,18 @@ namespace Modime
 					} catch (Exception ex) {
 						//Console.WriteLine("Can not export {0}", path);
 						//Console.WriteLine(ex.Message);
+						if (!(ex is NotImplementedException) && !(ex is NotSupportedException))
+							return false;
 					}
 				}
 
 				count.UpdateCoordinates();
 			}
+
+			return true;
 		}
 
-		public void Import(Func<string, bool> importFilter)
+		public bool Import(Func<string, bool> importFilter)
 		{
 			XElement files = edit.Root.Element("Files");
 
@@ -101,26 +105,34 @@ namespace Modime
 				                             Select(f => this.config.ResolvePath(f.Value));
 
 				if (import.Select(importFilter).Any(e => e)) {
-					GameFile file = fileManager.RescueFile(path);
-					file.Format.Read();
-					file.Format.Import(import.ToArray());
-					this.UpdateQueue(file);
+					try {
+						GameFile file = fileManager.RescueFile(path);
+						file.Format.Read();
+						file.Format.Import(import.ToArray());
+						this.UpdateQueue(file);
+					} catch (Exception ex) {
+						Console.WriteLine("ERROR with {0}", path);
+						Console.WriteLine(ex.ToString());
+						return false;
+					}
 				}
 
 				count.UpdateCoordinates();
 			}
+
+			return true;
 		}
 
-		public void Import()
+		public bool Import()
 		{
 			// Import every file
-			this.Import(f => true);
+			return this.Import(f => true);
 		}
 
-		public void Import(DateTime importFrom)
+		public bool Import(DateTime importFrom)
 		{
 			// Import only if it has been modified from date specified
-			this.Import(f => System.IO.File.GetLastWriteTime(f) > importFrom);
+			return this.Import(f => System.IO.File.GetLastWriteTime(f) > importFrom);
 		}
 
 		public void Write(params string[] outputPath)
