@@ -111,7 +111,12 @@ namespace Nitro.Rom
 			set;
         }
 
-        public bool IsUnknown {
+        /// <summary>
+        /// Gets or sets a value indicating whether thie overlay is digitally signed.
+        /// Info from here: http://gbatemp.net/threads/recompressing-an-overlay-file.329576/#post-4387691
+        /// </summary>
+        /// <value><c>true</c> if this instance is signed; otherwise, <c>false</c>.</value>
+        public bool IsSigned {
             get;
             set;
         }
@@ -151,7 +156,7 @@ namespace Nitro.Rom
 			uint encodingInfo   = dr.ReadUInt32();
             overlay.EncodedSize = encodingInfo & 0x00FFFFFF;
             overlay.IsEncoded   = ((encodingInfo >> 24) & 0x01) == 1;
-            overlay.IsUnknown   = ((encodingInfo >> 24) & 0x02) == 2;
+            overlay.IsSigned    = ((encodingInfo >> 24) & 0x02) == 2;
             
             return overlay;
         }
@@ -167,7 +172,7 @@ namespace Nitro.Rom
 			this.EncodedSize = (uint)this.Length;
 			uint encodingInfo = this.EncodedSize;
             encodingInfo |= (uint)((this.IsEncoded ? 1 : 0) << 24);
-            encodingInfo |= (uint)((this.IsUnknown ? 2 : 0) << 24);
+            encodingInfo |= (uint)((this.IsSigned  ? 2 : 0) << 24);
 
 			dw.Write(this.OverlayId);
 			dw.Write(this.RamAddress);
