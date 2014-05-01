@@ -70,7 +70,8 @@ namespace Nitro.Rom
 		public override void Write(DataStream str)
         {
 			DataWriter dw = new DataWriter(str);
-            
+            long baseOffset = str.RelativePosition;
+
             // Write main tables
 			foreach (Fnt.FntTable table in this.tables) {
                 dw.Write(table.Offset);
@@ -80,7 +81,7 @@ namespace Nitro.Rom
             
             // Write subtables
             foreach (Fnt.FntTable table in this.tables)
-				table.Write(str);
+                table.Write(str, baseOffset);
         }
                 
         /// <summary>
@@ -379,9 +380,19 @@ namespace Nitro.Rom
 				}
 			}
 
-			public void Write(DataStream str)
+            public void Write(DataStream str, long baseOffset)
 			{
-				DataWriter bw = new DataWriter(str);
+                DataWriter bw = new DataWriter(str);
+
+                // Go to offset if we can. Maybe we are writing in a position
+                // that it doesn't exist still (it will write written later)
+                // so in this case we fill it with zeros
+                long tableOffset = baseOffset + this.Offset;
+                if (tableOffset > str.Length)
+                    str.WriteTimes(0, tableOffset - str.Length);
+
+                // And finally seek there
+                str.Seek(baseOffset + this.Offset, SeekMode.Origin);
 
 				byte nodeType;
 

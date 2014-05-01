@@ -103,11 +103,11 @@ namespace Nitro.Rom
                 
 				// Read until reachs padding byte
                 List<byte> tail = new List<byte>();
-                byte b = (byte)str.ReadByte();
+                /*byte b = (byte)str.ReadByte();
 				while (b != 0xFF) {
                     tail.Add(b);
                     b = (byte)str.ReadByte();
-                }
+                }*/
                 
                 arm.unknownTail = tail.ToArray();
             }
