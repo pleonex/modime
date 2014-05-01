@@ -110,6 +110,11 @@ namespace Nitro.Rom
 			get;
 			set;
         }
+
+        public bool IsUnknown {
+            get;
+            set;
+        }
         
         /// <summary>
         /// Gets or sets the address where this overlay will be written
@@ -145,7 +150,8 @@ namespace Nitro.Rom
             dr.ReadUInt32();    // File ID again
 			uint encodingInfo   = dr.ReadUInt32();
             overlay.EncodedSize = encodingInfo & 0x00FFFFFF;
-			overlay.IsEncoded   = (encodingInfo >> 24) == 1;
+            overlay.IsEncoded   = ((encodingInfo >> 24) & 0x01) == 1;
+            overlay.IsUnknown   = ((encodingInfo >> 24) & 0x02) == 2;
             
             return overlay;
         }
@@ -160,7 +166,8 @@ namespace Nitro.Rom
             
 			this.EncodedSize = (uint)this.Length;
 			uint encodingInfo = this.EncodedSize;
-			encodingInfo += (uint)((this.IsEncoded ? 1 : 0) << 24);
+            encodingInfo |= (uint)((this.IsEncoded ? 1 : 0) << 24);
+            encodingInfo |= (uint)((this.IsUnknown ? 2 : 0) << 24);
 
 			dw.Write(this.OverlayId);
 			dw.Write(this.RamAddress);

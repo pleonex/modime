@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{94E986E8-211E-4663-B6AB-6694E49239B3}</ProjectGuid>
     <OutputType>Exe</OutputType>
@@ -22,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <Externalconsole>true</Externalconsole>
-    <Commandlineparameters>--set-input-names=Ninokuni.nds -inew "Ninokuni.xml" "Ninokuni español.xml" "/home/benito/Ninokuni.nds" "/lab/nds/projects/ninokuni/Alpha.nds"</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>

@@ -64,7 +64,7 @@ namespace Modime
 			if (args.Length >= 5 && (args[argIdx] == "-i" || args[argIdx] == "-inew" || args[argIdx] == "-e")) {
 				string xmlGame    = args[argIdx + 1];
 				string xmlEdit    = args[argIdx + 2];
-				string outputFile = args[argIdx + 4];
+				string outputFile = (args[argIdx] == "-e") ? null : args[argIdx + 4];
 				string inputFile  = args[argIdx + 3];
 				string filename   = (inputNames.Length > 0) ? inputNames[0] : Path.GetFileName(inputFile);
 
