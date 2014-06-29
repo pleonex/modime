@@ -104,7 +104,8 @@ namespace Modime
 				IEnumerable<string> import = fileEdit.Elements("Import").
 				                             Select(f => this.config.ResolvePath(f.Value));
 
-				if (import.Select(importFilter).Any(e => e)) {
+				if (import.All(f => System.IO.File.Exists(f)) &&
+					import.Any(importFilter)) {
 					try {
 						GameFile file = fileManager.RescueFile(path);
 						file.Format.Read();
