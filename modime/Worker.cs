@@ -138,13 +138,36 @@ namespace Modime
 
 		public void Write(params string[] outputPath)
 		{
-			// Write files data
-			ConsoleCount count = new ConsoleCount("Writing internal file {0:0000} of {1:0000}", this.updateQueue.Count);
+			// Check if we can write to the output paths
+			GameFile rootFile = fileManager.Root as GameFile;
+			if (rootFile != null && outputPath.Length != 1)
+				throw new ArgumentException("Only ONE file need to be written");
+			else if (rootFile == null && fileManager.Root.Files.Count != outputPath.Length)
+				throw new ArgumentException("There are not enough output paths.");
+
+			// Write files data to memory buffers
+			ConsoleCount count = new ConsoleCount(
+				"Writing internal file {0:0000} of {1:0000}", this.updateQueue.Count);
+
+			bool outWritten = false;
 			foreach (string filePath in this.updateQueue) {
 				count.Show();
+
+				// Get file to write
 				GameFile file = this.fileManager.Root.SearchFile(filePath) as GameFile;
 				if (file == null)
-					throw new Exception("File not found.");
+					throw new Exception("File " + filePath + " not found.");
+
+				// Check if this is the output file to write
+				// In this case, we will write directly to the output file
+				if (file == rootFile) {
+					file.Format.Write(outputPath[0]);
+					outWritten = true;
+					count.UpdateCoordinates();
+					continue;
+				}
+
+				// TODO: Do the same in the case of more than one output files.
 
 				file.Format.Write();
 				count.UpdateCoordinates();
@@ -154,16 +177,11 @@ namespace Modime
 
 			// Write to output files
 			count = new ConsoleCount("Writing external file {0:0000} of {1:0000}", outputPath.Length);
-			if (fileManager.Root is GameFile) {
-				if (outputPath.Length != 1)
-					throw new ArgumentException("Only one file can be written");
-
+			if (rootFile != null) {
 				count.Show();
-				((GameFile)fileManager.Root).Stream.WriteTo(outputPath[0]);
-			} else if (fileManager.Root is GameFolder) {
-				if (outputPath.Length != fileManager.Root.Files.Count)
-					throw new ArgumentException("There are not enough output paths.");
-
+				if (!outWritten)
+					rootFile.Stream.WriteTo(outputPath[0]);
+			} else {
 				for (int i = 0; i < fileManager.Root.Files.Count; i++) {
 					GameFile f = fileManager.Root.Files[i] as GameFile;
 					if (f != null) {
