@@ -62,8 +62,6 @@ namespace Ninokuni
 				text = text.ApplyTable("replace", true);
 				writer.Write(text, 0x80);
 			}
-
-			writer.Flush();
 		}
 
 		protected override void Import(XElement root)

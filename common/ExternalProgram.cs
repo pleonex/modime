@@ -111,7 +111,7 @@ namespace Common
 			if (copyTo == "$stdIn") {
 				this.data.BaseStream.Seek(this.data.Offset, System.IO.SeekOrigin.Begin);
 				this.data.BaseStream.CopyTo(program.StandardInput.BaseStream);
-				program.StandardInput.Close();
+				program.StandardInput.Dispose();
 			}
 
 			if (this.data != null)

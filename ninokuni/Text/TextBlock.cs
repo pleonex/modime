@@ -103,8 +103,6 @@ namespace Ninokuni
 				writer.Write(b.Data);
 			}
 
-			writer.Flush();
-
 			if (this.isEncoded) {
 				data.Seek(0, SeekMode.Origin);
 				Codec(data, strOut);	// Encode data to strOut

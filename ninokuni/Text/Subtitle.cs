@@ -109,7 +109,6 @@ namespace Ninokuni
 
 			DataWriter writer = new DataWriter(strOut, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
 			writer.Write(text.ToString());
-			writer.Flush();
 		}
 
 		protected override void Import(XElement root)

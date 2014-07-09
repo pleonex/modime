@@ -395,10 +395,8 @@ namespace Nitro.Rom
             dw.Write(this.debugSize);
             dw.Write(this.debugRamAddress);
             dw.Write(this.reserved3);
-            dw.Flush();
 
             dw.Write(this.unknown);       
-            dw.Flush();
         }
         
         /// <summary>

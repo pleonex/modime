@@ -92,10 +92,8 @@ namespace Nitro.Rom
 			dw.Write(this.germanTitle,   0x100);
 			dw.Write(this.italianTitle,  0x100);
 			dw.Write(this.spanishTitle,  0x100);
-			dw.Flush();
 
-			str.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);            
-			str.Flush();
+			str.WritePadding(FileSystem.PaddingByte, FileSystem.PaddingAddress);
 		}
 
 		/// <summary>
