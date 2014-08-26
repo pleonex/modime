@@ -97,7 +97,7 @@ namespace Ninokuni
 
 			foreach (Block b in this.blocks) {
 				if (this.fileName == "MagicParam")
-					writer.Write(b.Text.ApplyTable("replace", true), this.textSize + 4);
+					writer.Write(b.Text.ApplyTable("replace", true), this.textSize + 8);
 				else
 					writer.Write(b.Text.ApplyTable("replace", true), this.textSize);
 				writer.Write(b.Data);
