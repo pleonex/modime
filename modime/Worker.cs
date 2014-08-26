@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Libgame;
@@ -93,6 +94,7 @@ namespace Modime
 		{
 			XElement files = edit.Root.Element("Files");
 
+			StreamWriter skipFiles = null;
 			ConsoleCount count = new ConsoleCount(
 				"Importing file {0:0000} of {1:0000}",
 				files.Elements("File").Count()
@@ -116,11 +118,19 @@ namespace Modime
 						Console.WriteLine(ex.ToString());
 						return false;
 					}
+				} else {
+					if (skipFiles == null)
+						skipFiles = new StreamWriter("skipped.txt", false);
+
+					foreach (string f in import)
+						skipFiles.WriteLine(f);
+					skipFiles.WriteLine();
 				}
 
 				count.UpdateCoordinates();
 			}
 
+			skipFiles.Close();
 			return true;
 		}
 
