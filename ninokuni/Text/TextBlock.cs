@@ -37,6 +37,7 @@ namespace Ninokuni
 		private bool    hasNumBlock;
 		private bool    isEncoded;
 		private bool    wOriginal;
+		private bool    nullTermina;
 		private int     textSize;
 		private int     dataSize;
 		private string  fileName;
@@ -52,9 +53,10 @@ namespace Ninokuni
 			this.hasNumBlock = (bool)parameters[0];
 			this.isEncoded   = (bool)parameters[1];
 			this.wOriginal   = (bool)parameters[2];
-			this.textSize    = (int)parameters[3];
-			this.dataSize    = (int)parameters[4];
-			this.fileName    = (string)parameters[5];
+			this.nullTermina = (bool)parameters[3];
+			this.textSize    = (int)parameters[4];
+			this.dataSize    = (int)parameters[5];
+			this.fileName    = (string)parameters[6];
 		}
 
 		public override void Read(DataStream strIn)
@@ -97,9 +99,9 @@ namespace Ninokuni
 
 			foreach (Block b in this.blocks) {
 				if (this.fileName == "MagicParam")
-					writer.Write(b.Text.ApplyTable("replace", true), this.textSize + 8);
+					writer.Write(b.Text.ApplyTable("replace", true), this.textSize + 8, this.nullTermina);
 				else
-					writer.Write(b.Text.ApplyTable("replace", true), this.textSize);
+					writer.Write(b.Text.ApplyTable("replace", true), this.textSize, this.nullTermina);
 				writer.Write(b.Data);
 			}
 
