@@ -130,7 +130,9 @@ namespace Modime
 				count.UpdateCoordinates();
 			}
 
-			skipFiles.Close();
+			if (skipFiles != null)
+				skipFiles.Close();
+
 			return true;
 		}
 
