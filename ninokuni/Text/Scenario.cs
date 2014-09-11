@@ -286,25 +286,31 @@ namespace Ninokuni
 
 		private class Entry3 : Entry
 		{
-			public ushort Unknown {
+			public SubEntry[] SubEntries {
 				get;
 				set;
 			}
 
-			public string Text {
-				get;
-				set;
+			public struct SubEntry {
+				public string ScriptName {
+					get;
+					set;
+				}
+
+				public ushort Unknown {
+					get;
+					set;
+				}
 			}
 
-			public ushort Unknown2 {
-				get;
-				set;
-			}
 
 			public override uint Size {
 				get {
-					return base.Size + 1 + 4 +
-						(uint)Encoding.GetEncoding("shift_jis").GetByteCount(this.Text);
+					int subEntrySize = 0;
+					foreach (SubEntry sub in this.SubEntries)
+						subEntrySize += 2 + Encoding.ASCII.GetByteCount(sub.ScriptName);
+
+					return (uint)(base.Size + 1 + 1 + subEntrySize);
 				}
 			}
 
@@ -317,10 +323,16 @@ namespace Ninokuni
 					EndiannessMode.LittleEndian,
 					Encoding.GetEncoding("shift_jis"));
 
-				byte entrySize = reader.ReadByte();
-				this.Unknown = reader.ReadUInt16();
-				this.Text = reader.ReadString(entrySize - 4);
-				this.Unknown2 = reader.ReadUInt16();
+				reader.ReadByte();	// Entry length
+				int numSubEntries = reader.ReadByte();
+
+				this.SubEntries = new SubEntry[numSubEntries];
+				for (int i = 0; i < numSubEntries; i++) {
+					this.SubEntries[i] = new SubEntry();
+					byte len = reader.ReadByte();
+					this.SubEntries[i].ScriptName = reader.ReadString(len);
+					this.SubEntries[i].Unknown = reader.ReadUInt16();
+				}
 			}
 
 			public override void Write(DataStream stream)
@@ -331,11 +343,13 @@ namespace Ninokuni
 					                    stream,
 					                    EndiannessMode.LittleEndian,
 					                    encoding);
-				byte[] data = encoding.GetBytes(this.Text);
-				writer.Write((byte)(data.Length + 4));
-				writer.Write(this.Unknown);
-				writer.Write(data);
-				writer.Write(this.Unknown2);
+
+				writer.Write((byte)(this.Size - 5));
+				writer.Write((byte)this.SubEntries.Length);
+				foreach (SubEntry sub in this.SubEntries) {
+					writer.Write(sub.ScriptName, typeof(byte));
+					writer.Write(sub.Unknown);
+				}
 			}
 		}
 	}
