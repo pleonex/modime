@@ -308,9 +308,9 @@ namespace Ninokuni
 				get {
 					int subEntrySize = 0;
 					foreach (SubEntry sub in this.SubEntries)
-						subEntrySize += 2 + Encoding.ASCII.GetByteCount(sub.ScriptName);
+						subEntrySize += 3 + Encoding.ASCII.GetByteCount(sub.ScriptName);
 
-					return (uint)(base.Size + 1 + 1 + subEntrySize);
+					return (uint)(base.Size + 2 + subEntrySize);
 				}
 			}
 
