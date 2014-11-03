@@ -35,7 +35,7 @@ namespace Ninokuni
 			{ 0x006A, new object[] { true,  false, false, true,  0x030, 0x50, "DebugBattleSettings" } },
 			{ 0x2A94, new object[] { false, false, false, true,  0x040, 0x00, "ImagenArea"          } },
 			{ 0x2A95, new object[] { false, false, true,  false, 0x008, 0x00, "ImagenName"          } },
-			{ 0x2A96, new object[] { true,  true,  true,  true,  0x010, 0xA4, "ImagenParam"         } },
+			{ 0x2A96, new object[] { true,  true,  true,  false, 0x010, 0xA4, "ImagenParam"         } },
 			{ 0x2A97, new object[] { false, false, false, true,  0x100, 0x00, "ImagenText"          } },
 			{ 0x2A98, new object[] { false, false, false, true,  0x072, 0x00, "EquipGetInfo"        } },
 			{ 0x2A99, new object[] { false, false, false, true,  0x0C4, 0x00, "EquipItemInfo"       } },
@@ -54,6 +54,7 @@ namespace Ninokuni
 			{ 0x2AAB, new object[] { true,  false, false, true,  0x0C4, 0x00, "SkillInfo"           } },
 			{ 0x2AAC, new object[] { true,  false, true,  true,  0x012, 0x2A, "SkillParam"          } }
 		};
+		// SkillParam checked for null
 
 		public override Type FormatType {
 			get { return typeof(TextBlock); }
