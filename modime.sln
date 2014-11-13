@@ -39,7 +39,6 @@ Global
 		{A9B92C00-1B55-46BB-AE26-787C0963CD62}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = modime\modime.csproj
 		version = 1.0
 	EndGlobalSection
 EndGlobal
