@@ -40,7 +40,7 @@ namespace Common
 
 		public override void Read(DataStream strIn)
 		{
-			this.data = new DataStream(strIn, strIn.Offset, strIn.Length);
+			this.data = new DataStream(strIn, 0, strIn.Length);
 		}
 
 		public override void Write(DataStream strOut)
@@ -58,12 +58,18 @@ namespace Common
 				int[] streams       = xmlType.Element("ImportedStreams").Value.
 				                      Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).
 				                      Select( idx => int.Parse(idx) ).ToArray();
+				bool useFilePaths   = xmlType.Element("UseFilePaths") != null && 
+					                  xmlType.Element("UseFilePaths").Value == "true";
 
 				Format format = FileManager.GetFormat(name);
 				format.Initialize(this.File, parameters);
 
 				format.Read(this.data);
-				format.Import(strIn.Where( (str, idx) => streams.Contains(idx) ).ToArray());
+
+				if (!useFilePaths)
+					format.Import(strIn.Where((str, idx) => streams.Contains(idx)).ToArray());
+				else
+					format.Import(ImportedPaths.Where((str, idx) => streams.Contains(idx)).ToArray());
 
 				this.data.Dispose();
 				this.data = new DataStream(new System.IO.MemoryStream(), 0, 0);

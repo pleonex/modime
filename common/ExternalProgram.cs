@@ -33,7 +33,7 @@ namespace Common
 	[Extension]
 	public class ExternalProgram : Format
 	{
-		private DataStream data;
+		DataStream data;
 
 		public override string FormatName {
 			get { return "Common.ExternalProgram"; }
@@ -41,12 +41,12 @@ namespace Common
 
 		public override void Read(DataStream strIn)
 		{
-			this.data = new DataStream(strIn, strIn.Offset, strIn.Length);
+			data = new DataStream(strIn, 0, strIn.Length);
 		}
 
 		public override void Write(DataStream strOut)
 		{
-			this.data.WriteTo(strOut);
+			data.WriteTo(strOut);
 		}
 
 		public override void Import(params DataStream[] strIn)
@@ -64,21 +64,16 @@ namespace Common
 			XElement envVars   = xmlImport.Element("EnvironmentVariables");
 
 			// Resolve variables
-			string[] tempFiles = new string[strIn.Length];
-			arguments = this.ResolveVariables(arguments, tempFiles);
+			var tempFiles = new string[strIn.Length];
+			arguments = ResolveVariables(arguments, tempFiles, strIn);
 			if (copyTo != "$stdIn")
-				copyTo = this.ResolveVariables(copyTo, tempFiles);
+				copyTo = ResolveVariables(copyTo, tempFiles, strIn);
 			if (outputPath != "$stdOut")
-				outputPath = this.ResolveVariables(outputPath, tempFiles);
-
-			// Copy the import file data to temp files
-			for (int i = 0; i < tempFiles.Length; i++)
-				if (!string.IsNullOrEmpty(tempFiles[i]))
-					strIn[i].WriteTo(tempFiles[i]);
-
+				outputPath = ResolveVariables(outputPath, tempFiles, strIn);
+			
 			// Write the data stream to a temp file
 			if (copyTo != "$stdIn" && !string.IsNullOrEmpty(copyTo))
-				this.data.WriteTo(copyTo);
+				data.WriteTo(copyTo);
 
 			if (config.OsName == "Unix" && !string.IsNullOrEmpty(inUnixRunOn)) {
 				arguments = string.Format("\"{0}\" {1}", programPath, arguments);
@@ -86,13 +81,13 @@ namespace Common
 			}
 
 			// Call to the program
-			ProcessStartInfo startInfo = new ProcessStartInfo();
+			var startInfo = new ProcessStartInfo();
 			startInfo.FileName        = programPath;
 			startInfo.Arguments       = arguments;
 			startInfo.UseShellExecute = false;
 			startInfo.CreateNoWindow  = true;
 			startInfo.ErrorDialog     = false;
-			startInfo.RedirectStandardInput  = (copyTo == "$stdIn") ? true : false;
+			startInfo.RedirectStandardInput  = (copyTo == "$stdIn");
 			startInfo.RedirectStandardOutput = true;
 
 			// Set environmet variables
@@ -104,23 +99,23 @@ namespace Common
 					);
 			}
 
-			Process program = new Process();
+			var program = new Process();
 			program.StartInfo = startInfo;
 			program.Start();
 
 			if (copyTo == "$stdIn") {
-				this.data.BaseStream.Seek(this.data.Offset, System.IO.SeekOrigin.Begin);
-				this.data.BaseStream.CopyTo(program.StandardInput.BaseStream);
+				data.BaseStream.Seek(data.Offset, System.IO.SeekOrigin.Begin);
+				data.BaseStream.CopyTo(program.StandardInput.BaseStream);
 				program.StandardInput.Dispose();
 			}
 
-			if (this.data != null)
-				this.data.Dispose();
+			if (data != null)
+				data.Dispose();
 
 			if (outputPath == "$stdOut") {
-				System.IO.MemoryStream ms = new System.IO.MemoryStream();
+				var ms = new System.IO.MemoryStream();
 				program.StandardOutput.BaseStream.CopyTo(ms);
-				this.data = new DataStream(ms, 0, ms.Length);
+				data = new DataStream(ms, 0, ms.Length);
 			}
 
 			program.WaitForExit();
@@ -128,20 +123,20 @@ namespace Common
 
 			// Read the data from the output file
 			if (outputPath != "$stdOut") {
-				DataStream fileStream = new DataStream(
+				var fileStream = new DataStream(
 					outputPath,
 					System.IO.FileMode.Open,
 					System.IO.FileAccess.Read,
 					System.IO.FileShare.ReadWrite
 				);
-				this.data = new DataStream(new System.IO.MemoryStream(), 0, 0);
+				data = new DataStream(new System.IO.MemoryStream(), 0, 0);
 
-				fileStream.WriteTo(this.data);
+				fileStream.WriteTo(data);
 				fileStream.Dispose();
 			}
 
 			// Remove temp files
-			for (int i = 0; i < tempFiles.Length; i++)
+			for (int i = 0; i < tempFiles.Length && !UseFilePaths; i++)
 				if (!string.IsNullOrEmpty(tempFiles[i]))
 					System.IO.File.Delete(tempFiles[i]);
 
@@ -161,18 +156,26 @@ namespace Common
 		protected override void Dispose(bool freeManagedResourcesAlso)
 		{
 			if (freeManagedResourcesAlso) {
-				if (this.data != null) {
-					this.data.Dispose();
-					this.data = null;
+				if (data != null) {
+					data.Dispose();
+					data = null;
 				}
 			}
 		}
 
-		private string ResolveVariables(string s, string[] tempFiles)
+		bool UseFilePaths {
+			get {
+				var element = ((XElement)parameters[0]).Element("Import");
+				return element.Element("UseFilePaths") != null && 
+					element.Element("UseFilePaths").Value == "true";
+			}
+		}
+
+		string ResolveVariables(string s, string[] tempFiles, DataStream[] strIn)
 		{
-			string pattern = @"\$([a-z]+)(\d+)(?::([a-z]+))?";
+			const string pattern = @"\$([a-z]+)(\d+)(?::([a-z]+))?";
 			MatchCollection matches = Regex.Matches(s, pattern);
-			StringBuilder snew = new StringBuilder(s);
+			var snew = new StringBuilder(s);
 
 
 			foreach (Match m in matches) {
@@ -185,8 +188,17 @@ namespace Common
 				string replace = string.Empty;
 
 				if (variable == "import") {
-					if (string.IsNullOrEmpty(tempFiles[num]))
-						tempFiles[num] = System.IO.Path.GetTempFileName();
+					// If the file path has not been assigned yet
+					if (string.IsNullOrEmpty(tempFiles[num])) {
+						// Save files into temp files
+						if (!UseFilePaths) {
+							tempFiles[num] = System.IO.Path.GetTempFileName();
+							strIn[num].WriteTo(tempFiles[num]);
+						// Use the imported file paths
+						} else {
+							tempFiles[num] = ImportedPaths[num];
+						}
+					}
 
 					string path = tempFiles[num];
 					if (string.IsNullOrEmpty(tile))
@@ -202,7 +214,7 @@ namespace Common
 				if (string.IsNullOrEmpty(replace))
 					throw new FormatException("Unknown tile");
 			
-				int index = snew.ToString().IndexOf(result);
+				int index = snew.ToString().IndexOf(result, StringComparison.Ordinal);
 				snew.Replace(result, replace, index, m.Length);	// Replace only current match
 			}
 
