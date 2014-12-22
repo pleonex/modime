@@ -37,7 +37,7 @@ namespace Ninokuni
 
 		protected override ValidationResult TestByTags(IDictionary<string, object> tags)
 		{
-			if ((string)tags["_GameCode_"] == "B2KJ")
+			if (tags.ContainsKey("_GameCode_") && (string)tags["_GameCode_"] == "B2KJ")
 				return ValidationResult.CouldBe;
 
 			return ValidationResult.No;
