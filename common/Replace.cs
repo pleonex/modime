@@ -37,7 +37,7 @@ namespace Common
 
 		public override void Read(DataStream strIn)
 		{
-			this.data = new DataStream(strIn, strIn.Offset, strIn.Length);
+			this.data = new DataStream(strIn, 0, strIn.Length);
 		}
 
 		public override void Write(DataStream strOut)
@@ -49,7 +49,7 @@ namespace Common
 		{
 			if (this.data != null)
 				this.data.Dispose();
-			this.data = new DataStream(strIn[0], strIn[0].Offset, strIn[0].Length);
+			this.data = new DataStream(strIn[0], 0, strIn[0].Length);
 		}
 
 		public override void Export(params DataStream[] strOut)

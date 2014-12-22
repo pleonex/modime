@@ -140,7 +140,7 @@ namespace Nitro.Rom
 				endOffset   = dr.ReadUInt32();
 				this.files[i] = new GameFile(
 					string.Empty,	// Name will be added later in FNT
-					new DataStream(str, startOffset, endOffset - startOffset));
+					new DataStream(str.BaseStream, startOffset, endOffset - startOffset)); // TODO: FIX
 				this.files[i].Tags["Id"] = i;
             }
             
