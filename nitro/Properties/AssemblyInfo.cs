@@ -44,4 +44,4 @@ using Mono.Addins;
 
 // Mono.Addins
 [assembly: Addin]
-[assembly: AddinDependency("libgame", "0.3")]
+[assembly: AddinDependency("libgame", "0.4")]

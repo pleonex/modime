@@ -45,7 +45,7 @@ namespace Modime
 
 			XDocument xmlGame = new XDocument();	// TODO: Replace with ExampleGame.xml
 			xmlGame.Add(new XElement("GameInfo", new XElement("Files")));
-			FileManager.Initialize(main, xmlGame);
+			FileManager.Initialize(main, FileInfoCollection.FromXml(xmlGame));
 
 			GameFile file = FileManager.GetInstance().RescueFile(filePath);
 			if (file != null)
@@ -92,7 +92,7 @@ namespace Modime
 
 			XDocument xmlGame = XDocument.Load(Path.Combine(AppPath, "ExampleGame.xml"));
 			XDocument xmlEdit = XDocument.Load(Path.Combine(AppPath, "ExampleEdition.xml"));
-			FileManager.Initialize(rom, xmlGame);
+			FileManager.Initialize(rom, FileInfoCollection.FromXml(xmlGame));
 			Configuration.Initialize(xmlEdit);
 
 			GameFile file = FileManager.GetInstance().RescueFile(filePath);

@@ -80,9 +80,10 @@ namespace Ninokuni
 			return ValidationResult.Invalid;
 		}
 
-		protected override void GuessDependencies(GameFile file)
+		protected override string[] GuessDependencies(GameFile file)
 		{
-			// Nothing
+			// No extra dependency
+			return null;
 		}
 
 		protected override object[] GuessParameters(GameFile file)

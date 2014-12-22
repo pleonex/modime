@@ -40,7 +40,7 @@ namespace Modime
 		{
 			Configuration.Initialize(xmlEdit);
 			this.config = Configuration.GetInstance();
-			FileManager.Initialize(root, xmlGame);
+			FileManager.Initialize(root, FileInfoCollection.FromXml(xmlGame));
 			this.fileManager = FileManager.GetInstance();
 
 			this.edit = xmlEdit;
