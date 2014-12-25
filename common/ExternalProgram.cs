@@ -143,7 +143,7 @@ namespace Common
 			if (autoremoveCpy && System.IO.File.Exists(copyTo))
 				System.IO.File.Delete(copyTo);
 
-			if (autoremoveOut && copyTo != outputPath && System.IO.File.Exists(outputPath))
+			if (autoremoveOut && System.IO.File.Exists(outputPath))
 				System.IO.File.Delete(outputPath);
 		}
 
