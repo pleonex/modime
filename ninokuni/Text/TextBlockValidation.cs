@@ -52,7 +52,7 @@ namespace Ninokuni
 			{ 0x2AA4, new object[] { true,  false, true,  true,  0x012, 0x2E, 0x00, "MagicParam"          } },
 			{ 0x2AA6, new object[] { true,  false, true,  true,  0x011, 0x2C, 0x00, "PlayerName"          } },
 			{ 0x2AAB, new object[] { true,  false, false, true,  0x0C4, 0x00, 0x00, "SkillInfo"           } },
-			{ 0x2AAC, new object[] { true,  false, true,  true,  0x012, 0x2A, 0x00, "SkillParam"          } }
+			{ 0x2AAC, new object[] { true,  false, true,  true,  0x012, 0x2A, 0x20, "SkillParam"          } }
 		};
 		// SkillParam checked for null
 
