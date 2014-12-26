@@ -19,8 +19,6 @@
 // <email>benito356@gmail.com</email>
 // <date>12/10/2013</date>
 //-----------------------------------------------------------------------
-using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
 using Mono.Addins;
@@ -33,38 +31,40 @@ namespace Ninokuni
 	[Extension]
 	public class TextBlock : XmlExportable
 	{
-		private Block[] blocks;
-		private bool    hasNumBlock;
-		private bool    isEncoded;
-		private bool    wOriginal;
-		private bool    nullTermina;
-		private int     textSize;
-		private int     dataSize;
-		private string  fileName;
+		Block[] blocks;
+		bool    hasNumBlock;
+		bool    isEncoded;
+		bool    wOriginal;
+		bool    nullTermina;
+		int     textSize;
+		int     dataSize;
+		int     longTxtSize;
+		string  fileName;
 
 		public override string FormatName {
-			get { return string.Format("Ninokuni.{0}", this.fileName); }
+			get { return string.Format("Ninokuni.{0}", fileName); }
 		}
 
 		public override void Initialize(GameFile file, params object[] parameters)
 		{
 			base.Initialize(file, parameters);
 
-			this.hasNumBlock = (bool)parameters[0];
-			this.isEncoded   = (bool)parameters[1];
-			this.wOriginal   = (bool)parameters[2];
-			this.nullTermina = (bool)parameters[3];
-			this.textSize    = (int)parameters[4];
-			this.dataSize    = (int)parameters[5];
-			this.fileName    = (string)parameters[6];
+			hasNumBlock = (bool)parameters[0];
+			isEncoded   = (bool)parameters[1];
+			wOriginal   = (bool)parameters[2];
+			nullTermina = (bool)parameters[3];
+			textSize    = (int)parameters[4];
+			dataSize    = (int)parameters[5];
+			longTxtSize = (int)parameters[6];
+			fileName    = (string)parameters[7];
 		}
 
 		public override void Read(DataStream strIn)
 		{
-			DataStream data = null;
+			DataStream data;
 
 			// Simple NOT encoding
-			if (this.isEncoded) {
+			if (isEncoded) {
 				data = new DataStream(new System.IO.MemoryStream(), 0, 0);
 				Codec(strIn, data);	// Decode strIn to data
 			} else {
@@ -72,40 +72,45 @@ namespace Ninokuni
 			}
 
 			data.Seek(0, SeekMode.Origin);
-			DataReader reader = new DataReader(data, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
+			var reader = new DataReader(data, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
 
-			int blockSize = this.textSize + this.dataSize;
-			int numBlocks = this.hasNumBlock ? reader.ReadUInt16() : (int)(data.Length / blockSize);
+			int blockSize = textSize + dataSize;
+			int numBlocks = hasNumBlock ? reader.ReadUInt16() : (int)(data.Length / blockSize);
 
-			this.blocks = new Block[numBlocks];
+			blocks = new Block[numBlocks];
 			for (int i = 0; i < numBlocks; i++)
-				this.blocks[i] = new Block(
-					reader.ReadString(this.textSize).ApplyTable("replace", false),
-					reader.ReadBytes(this.dataSize)
+				blocks[i] = new Block(
+					reader.ReadString(textSize).ApplyTable("replace", false),
+					reader.ReadBytes(dataSize)
 				);
 
 			// Free the decoded data
-			if (this.isEncoded)
+			if (isEncoded)
 				data.Dispose();
 		}
 
 		public override void Write(DataStream strOut)
 		{
-			DataStream data   = new DataStream(new System.IO.MemoryStream(), 0, 0);
-			DataWriter writer = new DataWriter(data, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
+			var data   = new DataStream(new System.IO.MemoryStream(), 0, 0);
+			var writer = new DataWriter(data, EndiannessMode.LittleEndian, Encoding.GetEncoding("shift_jis"));
 
-			if (this.hasNumBlock)
-				writer.Write((ushort)this.blocks.Length);
+			if (hasNumBlock)
+				writer.Write((ushort)blocks.Length);
 
-			foreach (Block b in this.blocks) {
-				if (this.fileName == "MagicParam")
-					writer.Write(b.Text.ApplyTable("replace", true), this.textSize + 8, this.nullTermina);
+			foreach (Block b in blocks) {
+				if (fileName == "MagicParam")
+					writer.Write(b.Text.ApplyTable("replace", true), textSize + 8, nullTermina);
 				else
-					writer.Write(b.Text.ApplyTable("replace", true), this.textSize, this.nullTermina);
+					writer.Write(b.Text.ApplyTable("replace", true), textSize, nullTermina);
 				writer.Write(b.Data);
+
+				// Hack for imagen name: new long name field
+				if (longTxtSize > 0) {
+					writer.Write(b.LongText ?? b.Text, longTxtSize, "replace", true);
+				}
 			}
 
-			if (this.isEncoded) {
+			if (isEncoded) {
 				data.Seek(0, SeekMode.Origin);
 				Codec(data, strOut);	// Encode data to strOut
 			} else {
@@ -118,18 +123,21 @@ namespace Ninokuni
 			int idx = 0;
 			foreach (XElement e in root.Elements("String")) {
 				// We can't create new blocks since we don't know the binary data
-				if (idx >= this.blocks.Length)
+				if (idx >= blocks.Length)
 					break;	// Show warning
 
-				this.blocks[idx++].Text = e.Value.FromXmlString('<', '>');
+				if (e.Attribute("LongName") != null)
+					blocks[idx].LongText = e.Attribute("LongName").Value;
+
+				blocks[idx++].Text = e.Value.FromXmlString('<', '>');
 			}
 		}
 
 		protected override void Export(XElement root)
 		{
-			foreach (Block b in this.blocks) {
-				XElement e = new XElement("String", b.Text.ToXmlString(2, '<', '>'));
-				if (this.wOriginal && !b.Text.Contains("\n"))
+			foreach (Block b in blocks) {
+				var e = new XElement("String", b.Text.ToXmlString(2, '<', '>'));
+				if (wOriginal && !b.Text.Contains("\n"))
 					e.SetAttributeValue("Original", b.Text);
 				root.Add(e);
 			}
@@ -140,20 +148,20 @@ namespace Ninokuni
 			// Nothing to do
 		}
 
-		private static void Codec(DataStream strIn, DataStream strOut)
+		static void Codec(DataStream strIn, DataStream strOut)
 		{
 			while (!strIn.EOF) {
 				strOut.WriteByte((byte)~strIn.ReadByte());
 			}
 		}
 
-		private struct Block
+		struct Block
 		{
 			public Block(string text, byte[] data)
 				: this()
 			{
-				this.Text = text;
-				this.Data = data;
+				Text = text;
+				Data = data;
 			}
 
 			public string Text {
@@ -164,6 +172,11 @@ namespace Ninokuni
 			public byte[] Data {
 				get;
 				private set;
+			}
+
+			public string LongText {
+				get;
+				set;
 			}
 		}
 	}
