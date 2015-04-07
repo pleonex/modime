@@ -116,9 +116,11 @@ namespace Nitro.Rom
 			this.header.Read(str);
 
 			// Read banner
-			str.Seek(this.header.BannerOffset, SeekMode.Origin);
-			this.banner  = new Banner();
-			this.banner.Read(str);
+			var bannerStream = new DataStream(str, this.header.BannerOffset, Banner.Size);
+			var bannerFile   = new GameFile("Banner", bannerStream);
+			this.banner = new Banner();
+			this.banner.Initialize(bannerFile);
+			this.banner.Read();
 
 			// Read file system: FAT and FNT
 			this.fileSys = new FileSystem();
@@ -131,6 +133,8 @@ namespace Nitro.Rom
 			this.File.Tags["_GameCode_"]  = this.header.GameCode;
 
 			// Get the ROM folders with files and system files.
+			this.fileSys.SystemFolder.AddFile(bannerFile);
+
 			this.File.AddFolder(this.fileSys.Root);
 			this.File.AddFolder(this.fileSys.SystemFolder);
         }

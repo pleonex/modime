@@ -23,13 +23,14 @@ namespace Nitro.Rom
 {
 	using System;
 	using System.Text;
+	using System.Xml.Linq;
 	using Libgame;
 	using Libgame.IO;
 
 	/// <summary>
 	/// Represents the banner of a NDS game ROM.
 	/// </summary>
-	public sealed class Banner : Format
+	public sealed class Banner : XmlExportable
 	{
 		private ushort version; 		// Always 1
 		private ushort crc16; 			// CRC-16 of structure, from 0x20 to 0x83
@@ -118,15 +119,32 @@ namespace Nitro.Rom
 			this.spanishTitle  = dr.ReadString(0x100);
 		}
 
-		// What about exporting the Icon + some kind of XML file
-		// with title info to import later?
-		public override void Export(params DataStream[] strOut)
+		protected override void Export(XElement root)
 		{
-			throw new NotImplementedException();
+			root.Add(new XElement("Version", this.version));
+
+			var titles = new XElement("Titles");
+			root.Add(titles);
+
+			titles.Add(new XElement("Japanese", this.japaneseTitle.ToXmlString(3, '[', ']')));
+			titles.Add(new XElement("English",  this.englishTitle.ToXmlString(3, '[', ']')));
+			titles.Add(new XElement("French",   this.frenchTitle.ToXmlString(3, '[', ']')));
+			titles.Add(new XElement("German",   this.germanTitle.ToXmlString(3, '[', ']')));
+			titles.Add(new XElement("Italian",  this.italianTitle.ToXmlString(3, '[', ']')));
+			titles.Add(new XElement("Spanish",  this.spanishTitle.ToXmlString(3, '[', ']')));
 		}
-		public override void Import(params DataStream[] strIn)
+
+		protected override void Import(XElement root)
 		{
-			throw new NotImplementedException();
+			this.version = Convert.ToUInt16(root.Element("Version").Value);
+
+			var titles = root.Element("Titles");
+			this.japaneseTitle = titles.Element("Japanese").Value.FromXmlString('[', ']');
+			this.englishTitle  = titles.Element("English").Value.FromXmlString('[', ']');
+			this.frenchTitle   = titles.Element("French").Value.FromXmlString('[', ']');
+			this.germanTitle   = titles.Element("German").Value.FromXmlString('[', ']');
+			this.italianTitle  = titles.Element("Italian").Value.FromXmlString('[', ']');
+			this.spanishTitle  = titles.Element("Spanish").Value.FromXmlString('[', ']');
 		}
 
 		protected override void Dispose(bool freeManagedResourcesAlso)
