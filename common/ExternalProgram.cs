@@ -138,13 +138,20 @@ namespace Common
 			// Remove temp files
 			for (int i = 0; i < tempFiles.Length && !UseFilePaths; i++)
 				if (!string.IsNullOrEmpty(tempFiles[i]))
-					System.IO.File.Delete(tempFiles[i]);
+					SafeDeleting(tempFiles[i]);
 
 			if (autoremoveCpy && System.IO.File.Exists(copyTo))
-				System.IO.File.Delete(copyTo);
+				SafeDeleting(copyTo);
 
 			if (autoremoveOut && System.IO.File.Exists(outputPath))
-				System.IO.File.Delete(outputPath);
+				SafeDeleting(outputPath);
+		}
+
+		private void SafeDeleting(string file)
+		{
+			try {
+				System.IO.File.Delete(file);
+			} catch (Exception) { }
 		}
 
 		public override void Export(params DataStream[] strOut)
