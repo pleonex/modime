@@ -38,7 +38,7 @@
       <HintPath>..\..\..\ninokuni\programs\NinoScritor\NinoScritor\bin\Release\NinoScritor.exe</HintPath>
     </Reference>
     <Reference Include="Mono.Addins">
-      <HintPath>..\Mono.Addins.dll</HintPath>
+      <HintPath>..\packages\Mono.Addins.1.2\lib\net40\Mono.Addins.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -67,5 +67,8 @@
   <ItemGroup>
     <Folder Include="Text\" />
     <Folder Include="Script\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

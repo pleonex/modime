@@ -12,3 +12,6 @@ libgame/obj/
 common/obj/
 ninokuni/obj/
 nitro/obj/
+
+# Ignore NuGet
+packages/
