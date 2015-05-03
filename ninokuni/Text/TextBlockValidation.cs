@@ -34,7 +34,7 @@ namespace Ninokuni
 			//  ID			    HasNumBlock  Enc.  wOrig  Null   Text   Data LongText  		Name
 			{ 0x006A, new object[] { true,  false, false, true,  0x030, 0x50, 0x00, "DebugBattleSettings" } },
 			{ 0x2A94, new object[] { false, false, false, true,  0x040, 0x00, 0x00, "ImagenArea"          } },
-			{ 0x2A95, new object[] { false, false, true,  false, 0x008, 0x00, 0x00, "ImagenName"          } },
+			{ 0x2A95, new object[] { false, false, true,  true,  0x008, 0x00, 0x00, "ImagenName"          } },
 			{ 0x2A96, new object[] { true,  true,  true,  false, 0x010, 0xA4, 0x20, "ImagenParam"         } },
 			{ 0x2A97, new object[] { false, false, false, true,  0x100, 0x00, 0x00, "ImagenText"          } },
 			{ 0x2A98, new object[] { false, false, false, true,  0x072, 0x00, 0x00, "EquipGetInfo"        } },
