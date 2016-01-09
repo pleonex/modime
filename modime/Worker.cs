@@ -21,7 +21,6 @@
 //-----------------------------------------------------------------------
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Libgame;
@@ -64,14 +63,15 @@ namespace Modime
 			foreach (XElement fileEdit in files.Elements("File")) {
 				count.Show();
 				string path = fileEdit.Element("Path").Value;
-				IEnumerable<string> exportPaths = fileEdit.Elements("Import").
-				                                  Select(f => this.config.ResolvePath(f.Value));
+				IList<string> exportPaths = fileEdit.Elements("Import")
+													.Select(f => this.config.ResolvePath(f.Value))
+													.ToList();
 
 				foreach (string p in exportPaths.Select(f => System.IO.Path.GetDirectoryName(f)))
 					if (!System.IO.Directory.Exists(p))
 						System.IO.Directory.CreateDirectory(p);
 
-				if (exportPaths.Count() > 0) {
+				if (exportPaths.Any()) {
 					GameFile file = fileManager.RescueFile(path);
 					file.Format.Read();
 					try {
@@ -94,7 +94,7 @@ namespace Modime
 		{
 			XElement files = edit.Root.Element("Files");
 
-			StreamWriter skipFiles = null;
+			System.IO.StreamWriter skipFiles = null;
 			ConsoleCount count = new ConsoleCount(
 				"Importing file {0:0000} of {1:0000}",
 				files.Elements("File").Count()
@@ -103,11 +103,11 @@ namespace Modime
 			foreach (XElement fileEdit in files.Elements("File")) {
 				count.Show();
 				string path = fileEdit.Element("Path").Value;
-				IEnumerable<string> import = fileEdit.Elements("Import").
-				                             Select(f => this.config.ResolvePath(f.Value));
+				IList<string> import = fileEdit.Elements("Import")
+											.Select(f => this.config.ResolvePath(f.Value))
+											.ToList();
 
-				if (import.All(f => System.IO.File.Exists(f)) &&
-					import.Any(importFilter)) {
+				if (import.All(System.IO.File.Exists) && import.Any(importFilter)) {
 					try {
 						GameFile file = fileManager.RescueFile(path);
 						file.Format.Read();
@@ -115,12 +115,12 @@ namespace Modime
 						this.UpdateQueue(file);
 					} catch (Exception ex) {
 						Console.WriteLine("ERROR with {0}", path);
-						Console.WriteLine(ex.ToString());
+						Console.WriteLine(ex);
 						return false;
 					}
 				} else {
 					if (skipFiles == null)
-						skipFiles = new StreamWriter("skipped.txt", false);
+						skipFiles = new System.IO.StreamWriter("skipped.txt", false);
 
 					foreach (string f in import)
 						skipFiles.WriteLine(f);
