@@ -98,26 +98,36 @@ namespace Modime
 			System.IO.StreamWriter skipFiles = null;
 			ConsoleCount count = new ConsoleCount(
 				"Importing file {0:0000} of {1:0000}",
-				files.Elements("File").Count()
+				files.Elements().Count()
 			);
 
-			foreach (XElement fileEdit in files.Elements("File")) {
+			foreach (XElement fileEdit in files.Elements()) {
 				count.Show();
-				string path = fileEdit.Element("Path").Value;
+				bool isVirtual = (fileEdit.Name == "VirtualFile");
+				string path = fileEdit.Element("Path")?.Value ?? "<VirtualFile>";
 				IList<string> import = fileEdit.Elements("Import")
 											.Select(f => this.config.ResolvePath(f.Value))
 											.ToList();
-				string internalFilter = fileEdit.Element("InternalFilter")?.Value.ToLower();
+				bool internalFilter = Convert.ToBoolean(fileEdit.Element("InternalFilter")?.Value ?? "false");
 
-				bool validFile = (internalFilter == "false" || import.Any(importFilter));
+				bool validFile = (!internalFilter || import.Any(importFilter));
 				if (import.All(System.IO.File.Exists) && validFile) {
 					try {
-						GameFile file = fileManager.RescueFile(path);
-						file.Format.Read();
-						file.Format.Import(import.ToArray());
-						this.UpdateQueue(file);
+						if (!isVirtual) {
+							GameFile file = fileManager.RescueFile(path);
+							file.Format.Read();
+							file.Format.Import(import.ToArray());
+							this.UpdateQueue(file);
+						} else {
+							// It's a virtual file, just a layer
+							// Just create the format and import.
+							string type = fileEdit.Element("Type").Value;
+							Format format = FileManager.GetFormat(type);
+							format.Initialize(null, fileEdit.Element("Parameters"));
+							format.Import(import.ToArray());
+						}
 					} catch (Exception ex) {
-						Console.WriteLine("ERROR with {0}", path);
+						Console.WriteLine("ERROR with {0}, {1}", path, import.FirstOrDefault());
 						Console.WriteLine(ex);
 						return false;
 					}
