@@ -107,8 +107,10 @@ namespace Modime
 				IList<string> import = fileEdit.Elements("Import")
 											.Select(f => this.config.ResolvePath(f.Value))
 											.ToList();
+				string internalFilter = fileEdit.Element("InternalFilter")?.Value.ToLower();
 
-				if (import.All(System.IO.File.Exists) && import.Any(importFilter)) {
+				bool validFile = (internalFilter == "false" || import.Any(importFilter));
+				if (import.All(System.IO.File.Exists) && validFile) {
 					try {
 						GameFile file = fileManager.RescueFile(path);
 						file.Format.Read();
@@ -146,6 +148,7 @@ namespace Modime
 		public bool Import(DateTime importFrom)
 		{
 			// Import only if it has been modified from date specified
+			config.Extras["modime_dateFilter"] = importFrom;
 			return this.Import(f => System.IO.File.GetLastWriteTime(f) > importFrom);
 		}
 
