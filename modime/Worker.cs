@@ -30,20 +30,21 @@ namespace Modime
 {
 	public class Worker
 	{
-		private XDocument edit;
-		private FileManager fileManager;
-		private Configuration config;
-		private List<string> updateQueue;
+		private readonly XDocument edit;
+		private readonly FileManager fileManager;
+		private readonly Configuration config;
+		private readonly List<string> updateQueue;
 
 		public Worker(XDocument xmlGame, XDocument xmlEdit, FileContainer root)
 		{
 			Configuration.Initialize(xmlEdit);
 			this.config = Configuration.GetInstance();
-			FileManager.Initialize(root, FileInfoCollection.FromXml(xmlGame));
-			this.fileManager = FileManager.GetInstance();
 
 			this.edit = xmlEdit;
 			this.updateQueue = new List<string>();
+
+			InitializeFileTypes(root, xmlGame);
+			this.fileManager = FileManager.GetInstance();
 		}
 
 		public Worker(string xmlGame, string xmlEdit, FileContainer root)
@@ -224,6 +225,29 @@ namespace Modime
 
 			// Insert the file just above the top dependency
 			this.updateQueue.Insert(depTopPosition, file.Path);
+		}
+
+		private void InitializeFileTypes(FileContainer root, XDocument xmlGame)
+		{
+			FileInfoCollection fileInfo = FileInfoCollection.FromXml(xmlGame);
+
+			// Add the parameters to each file format.
+			// They can be used to add specific properties of the project to the formats parsers.
+			// E.g.: to pass the key of the GoogleSpreadsheets to parse.
+			foreach (XElement fileEdit in edit.Root.Element("Files").Elements("File")) {
+				// In order to set parameters the type must be defined in the XML. Otherwise it will defined in run-time
+				string filePath = fileEdit.Element("Path").Value;
+				if (!fileInfo.Contains(filePath))
+					continue;
+
+				FileInfo info = fileInfo[filePath];
+				if (info.Parameters == null)
+					info.Parameters = fileEdit.Element("Parameters");
+				else
+					info.Parameters.Add(fileEdit.Element("Parameters")?.Elements());
+			}
+
+			FileManager.Initialize(root, fileInfo);
 		}
 	}
 }
