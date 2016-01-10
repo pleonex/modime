@@ -34,11 +34,11 @@
     <Reference Include="System" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
-    <Reference Include="NinoScritor">
-      <HintPath>..\..\..\ninokuni\programs\NinoScritor\NinoScritor\bin\Release\NinoScritor.exe</HintPath>
-    </Reference>
     <Reference Include="Mono.Addins">
       <HintPath>..\packages\Mono.Addins.1.2\lib\net40\Mono.Addins.dll</HintPath>
+    </Reference>
+    <Reference Include="NinoScritor">
+      <HintPath>..\NinoScritor.exe</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

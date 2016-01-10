@@ -12,6 +12,7 @@ libgame/obj/
 common/obj/
 ninokuni/obj/
 nitro/obj/
+NinoScritor.exe
 
 # Ignore NuGet
 packages/
