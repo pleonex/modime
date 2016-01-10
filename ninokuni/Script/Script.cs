@@ -66,6 +66,11 @@ namespace Ninokuni.Script
 			);
 
 			temp.Dispose();
+
+            // Add dummy file to be able to trigger post-xml parser like Spreadsheets.
+            File.AddFile(new GameFile(
+                "script",
+                new DataStream(new System.IO.MemoryStream(), 0, 0)));
 		}
 
 		public override void Write(DataStream strOut)
