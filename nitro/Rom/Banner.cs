@@ -63,11 +63,11 @@ namespace Nitro.Rom
 			this.Write(data);
 
 			data.Seek(0x20, SeekMode.Origin);
-			this.crc16 = Libgame.Utils.Checksums.Crc16(data, 0x0820);
+			this.crc16 = Libgame.Utils.Checksums.Crc16.Run(data, 0x0820);
 
 			if (this.version == 2) {
 				data.Seek(0x20, SeekMode.Origin);
-				this.crc16v2 = Libgame.Utils.Checksums.Crc16(data, 0x0920);
+				this.crc16v2 = Libgame.Utils.Checksums.Crc16.Run(data, 0x0920);
 			}
 
 			data.Dispose();

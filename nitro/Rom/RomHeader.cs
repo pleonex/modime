@@ -334,7 +334,7 @@ namespace Nitro.Rom
 			this.Write(data);
 
 			data.Seek(0, SeekMode.Origin);
-			this.HeaderCRC16 = Libgame.Utils.Checksums.Crc16(data, 0x15E);
+			this.HeaderCRC16 = Libgame.Utils.Checksums.Crc16.Run(data, 0x15E);
 			this.HeaderCRC   = true;
 
 			data.Dispose();
